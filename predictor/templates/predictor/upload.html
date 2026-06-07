@@ -1,76 +1,42 @@
 {% extends 'base.html' %}
 
-{% block title %}Execute Diagnosis - MediScan{% endblock %}
+{% block title %}Upload Scan - MediScan{% endblock %}
 
 {% block content %}
-<div class="auth-container" style="max-width: 620px;">
+<div class="auth-container" style="max-width: 550px;">
     <div class="auth-card">
         <div class="auth-header">
             <h2>Diagnostic Scan</h2>
-            <p>Select a clinical category and upload a medical scan for instant classification</p>
+            <p>Upload a medical scan for instant AI classification</p>
         </div>
 
         {% if error %}
         <div class="auth-alert">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <span>{{ error }}</span>
         </div>
         {% endif %}
 
-        <form method="POST" enctype="multipart/form-data" class="upload-form" id="diagnostic-form">
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
             {% csrf_token %}
             
-            <!-- Category Cards Selection -->
             <div class="form-group">
-                <label class="form-label">Diagnostic Category</label>
-                <div class="category-grid">
-                    <!-- Card 1: Pneumonia -->
-                    <div class="category-card" data-value="pneumonia" id="card-pneumonia">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="category-icon">
-                            <path d="M12 3v17M12 8a4 4 0 0 1 4 4v4c0 .6.4 1 1 1h1a2 2 0 0 0 2-2v-4a7 7 0 0 0-7-7h-1Z"></path>
-                            <path d="M12 8a4 4 0 0 0-4 4v4c0 .6-.4 1-1 1H6a2 2 0 0 1-2-2v-4a7 7 0 0 1 7-7h1Z"></path>
-                            <circle cx="9" cy="16" r="1"></circle>
-                            <circle cx="15" cy="16" r="1"></circle>
-                        </svg>
-                        <span class="category-title">Chest X-Ray<br>(Pneumonia)</span>
-                    </div>
-
-                    <!-- Card 2: Retinopathy -->
-                    <div class="category-card" data-value="retinopathy" id="card-retinopathy">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="category-icon">
-                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M12 5V3M12 21v-2M12 12m-6 0h-2M20 12h-2"></path>
-                        </svg>
-                        <span class="category-title">Retina Fundus<br>(Retinopathy)</span>
-                    </div>
-
-                    <!-- Card 3: Skin Cancer -->
-                    <div class="category-card" data-value="skin_cancer" id="card-skin_cancer">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="category-icon">
-                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"></path>
-                            <path d="M12 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM7 11a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM17 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM11 16a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
-                        </svg>
-                        <span class="category-title">Dermoscopic<br>(Skin Cancer)</span>
-                    </div>
-                </div>
-                <!-- Hidden input loaded dynamically -->
-                <input type="hidden" name="disease_type" id="disease_type" required>
+                <label for="disease_type" class="form-label">Diagnostic Category</label>
+                <select id="disease_type" name="disease_type" class="form-input" style="appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238a99ad%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.65rem auto; padding-right: 2.5rem;" required>
+                    <option value="" disabled selected>Select analysis model...</option>
+                    <option value="pneumonia">Chest X-Ray (Pneumonia)</option>
+                    <option value="retinopathy">Retinal Fundus Image (Diabetic Retinopathy)</option>
+                    <option value="skin_cancer">Dermoscopic Image (Skin Cancer)</option>
+                </select>
             </div>
 
-            <!-- Drag & Drop Zone -->
             <div class="form-group">
                 <label class="form-label">Scan Image</label>
                 <div class="file-dropzone" id="dropzone">
-                    <svg class="dropzone-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    <p class="dropzone-text" id="dropzone-text">Drag & drop scan image here, or <span>browse files</span></p>
+                    <svg class="dropzone-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <p class="dropzone-text" id="dropzone-text">Drag & drop scan image, or <span>browse files</span></p>
                     <input type="file" id="image" name="image" class="file-input" accept="image/*" required>
-                    
-                    <!-- Premium visual wrapper with active scan line -->
-                    <div class="scan-container-box" id="preview-wrapper" style="display: none; margin-top: 0.5rem; max-width: 100%;">
-                        <div class="scan-line-overlay"></div>
-                        <img id="image-preview" class="preview-img" />
-                    </div>
+                    <img id="image-preview" class="preview-img" style="display: none;" />
                 </div>
             </div>
 
@@ -85,18 +51,18 @@
     .upload-form {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.5rem;
     }
     
     .file-dropzone {
-        border: 1.5px dashed rgba(0, 240, 255, 0.2);
-        border-radius: 12px;
-        padding: 2.75rem 1.5rem;
+        border: 2px dashed rgba(0, 212, 255, 0.25);
+        border-radius: 8px;
+        padding: 2.5rem 1.5rem;
         text-align: center;
-        background-color: rgba(5, 7, 15, 0.4);
+        background-color: rgba(10, 15, 30, 0.4);
         cursor: pointer;
         position: relative;
-        transition: var(--transition);
+        transition: border-color var(--transition-speed), background-color var(--transition-speed), box-shadow var(--transition-speed);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -104,37 +70,29 @@
     }
 
     .file-dropzone.dragover {
-        border-color: var(--accent-cyan);
-        background-color: rgba(0, 240, 255, 0.04);
-        box-shadow: 0 0 25px rgba(0, 240, 255, 0.08);
+        border-color: var(--accent);
+        background-color: rgba(0, 212, 255, 0.05);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
     }
 
     .dropzone-icon {
         color: var(--text-secondary);
-        transition: var(--transition);
+        transition: color var(--transition-speed), transform var(--transition-speed);
     }
 
     .file-dropzone:hover .dropzone-icon {
-        color: var(--accent-cyan);
-        transform: translateY(-2px);
-        filter: drop-shadow(0 0 8px var(--accent-cyan-glow));
+        color: var(--accent);
+        transform: translateY(-3px);
     }
 
     .dropzone-text {
         font-size: 0.9rem;
         color: var(--text-secondary);
-        pointer-events: none;
     }
 
     .dropzone-text span {
-        color: var(--accent-cyan);
-        font-weight: 600;
-        transition: var(--transition);
-    }
-
-    .file-dropzone:hover .dropzone-text span {
-        color: var(--text-primary);
-        text-shadow: 0 0 10px var(--accent-cyan-glow);
+        color: var(--accent);
+        font-weight: 500;
     }
 
     .file-input {
@@ -145,24 +103,16 @@
         height: 100%;
         opacity: 0;
         cursor: pointer;
-        z-index: 20;
     }
 
     .preview-img {
         max-width: 100%;
-        max-height: 220px;
-        border-radius: 8px;
-        display: block;
+        max-height: 180px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        margin-top: 0.5rem;
         object-fit: contain;
-    }
-    
-    .loading-pulse {
-        animation: form-loading 1.5s infinite alternate ease-in-out;
-    }
-    
-    @keyframes form-loading {
-        from { opacity: 0.7; }
-        to { opacity: 1; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.2)); }
+        z-index: 10;
     }
 </style>
 {% endblock %}
@@ -172,26 +122,11 @@
     document.addEventListener('DOMContentLoaded', () => {
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('image');
-        const previewWrapper = document.getElementById('preview-wrapper');
         const previewImg = document.getElementById('image-preview');
         const dropzoneText = document.getElementById('dropzone-text');
         const dropzoneIcon = dropzone.querySelector('.dropzone-icon');
-        const form = document.getElementById('diagnostic-form');
+        const form = document.querySelector('.upload-form');
         const submitBtn = document.getElementById('analyze-btn');
-        const hiddenCategory = document.getElementById('disease_type');
-        const categoryCards = document.querySelectorAll('.category-card');
-
-        // Handle category card clicks
-        categoryCards.forEach(card => {
-            card.addEventListener('click', () => {
-                // Clear active states
-                categoryCards.forEach(c => c.classList.remove('selected'));
-                
-                // Select clicked card
-                card.classList.add('selected');
-                hiddenCategory.value = card.getAttribute('data-value');
-            });
-        });
 
         // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -235,23 +170,16 @@
                 reader.readAsDataURL(file);
                 reader.onloadend = () => {
                     previewImg.src = reader.result;
-                    previewWrapper.style.display = 'block';
+                    previewImg.style.display = 'block';
                     dropzoneIcon.style.display = 'none';
-                    dropzoneText.innerHTML = `Selected scan: <strong style="color:var(--accent-cyan);">${file.name}</strong>`;
+                    dropzoneText.textContent = `Selected: ${file.name}`;
                 };
             }
         }
 
         // Loading feedback on submit
-        form.addEventListener('submit', (e) => {
-            if (!hiddenCategory.value) {
-                e.preventDefault();
-                alert('Please select a diagnostic category card first.');
-                return;
-            }
-            submitBtn.innerHTML = '<span class="loading-pulse">Analyzing Neural Structures (PyTorch)...</span>';
-            submitBtn.style.background = 'linear-gradient(135deg, var(--accent-purple), #8800ff)';
-            submitBtn.style.boxShadow = '0 8px 30px rgba(189, 0, 255, 0.4)';
+        form.addEventListener('submit', () => {
+            submitBtn.textContent = 'Running Neural Classification...';
             submitBtn.disabled = true;
         });
     });
