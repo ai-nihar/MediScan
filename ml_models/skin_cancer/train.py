@@ -130,13 +130,20 @@ class_weights = compute_class_weight(
 class_weight_dict = dict(zip(classes, class_weights))
 print(f"Computed class weights: {class_weight_dict}")
 
-# 3. MODEL ARCHITECTURE (MobileNetV2 Transfer Learning)
+# 3. MODEL ARCHITECTURE (MobileNetV2 Transfer Learning with Fine-Tuning)
 class SkinCancerModel(nn.Module):
     def __init__(self):
         super(SkinCancerModel, self).__init__()
         self.base = mobilenet_v2(weights=MobileNet_V2_Weights.IMAGENET1K_V1)
-        for param in self.base.parameters():
-            param.requires_grad = False
+        
+        # Unfreeze the final convolutional blocks (layers 14-18) for fine-tuning, freeze the rest
+        for i, child in enumerate(self.base.features):
+            if i < 14:
+                for param in child.parameters():
+                    param.requires_grad = False
+            else:
+                for param in child.parameters():
+                    param.requires_grad = True
             
         num_features = self.base.classifier[1].in_features
         self.base.classifier = nn.Sequential(
@@ -151,7 +158,17 @@ class SkinCancerModel(nn.Module):
         return self.base(x)
 
 model = SkinCancerModel().to(device)
-optimizer = torch.optim.Adam(model.base.classifier.parameters(), lr=0.001)
+
+# Separate backbone parameters and classifier parameters for differential learning rates
+backbone_params = []
+for i, child in enumerate(model.base.features):
+    if i >= 14:
+        backbone_params.extend(list(child.parameters()))
+
+optimizer = torch.optim.Adam([
+    {'params': backbone_params, 'lr': 1e-4},                  # Low learning rate for backbone fine-tuning
+    {'params': model.base.classifier.parameters(), 'lr': 1e-3} # Standard learning rate for new classifier
+])
 
 # Training loop
 epochs = 20
