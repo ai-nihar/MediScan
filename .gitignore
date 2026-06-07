@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.env
+.venv
+
+# SQLite database and migrations history (optional, but standard to ignore DB)
+db.sqlite3
+*.db
+
+# Media / Uploaded files by users (patient diagnostic scans)
+media/
+predictor/media/
+mediscan/media/
+predictions/
+
+# Large Medical Datasets (Gigabytes of images)
+datasets/
+
+# Large Model weight checkpoints (recommended to keep out of Git)
+*.pth
+*.h5
+ml_models/**/*.pth
+ml_models/**/*.h5
+ml_models/**/confusion_matrix.png
+ml_models/**/training_history.png
+ml_models/**/class_indices.json
+
+# Kaggle API credentials or keys
+kaggle.json
+.kaggle/
+credentials.json
+secrets.py
+.env*

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MediScan - Advanced Diagnostics{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    
+    <!-- Link to global CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <span class="logo-dot"></span>
+                Medi<span class="logo-highlight">Scan</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/" class="nav-link" id="nav-predict">Predictor</a>
+                <a href="/analysis/dashboard/" class="nav-link" id="nav-dashboard">Analytics</a>
+                <div id="auth-links" class="nav-auth">
+                    <!-- Dynamic auth links injected via JavaScript -->
+                    <a href="/accounts/login/" class="nav-link login-btn">Login</a>
+                    <a href="/accounts/register/" class="nav-link register-btn">Register</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 MediScan Platform. For educational and research purposes only.</p>
+    </footer>
+
+    <!-- Global JS helper for handling tokens -->
+    <script>
+        // Check if user is authenticated via local storage JWT
+        const getAccessToken = () => localStorage.getItem('access_token');
+        const getRefreshToken = () => localStorage.getItem('refresh_token');
+        const getUserData = () => {
+            const data = localStorage.getItem('user_data');
+            return data ? JSON.parse(data) : null;
+        };
+
+        const setTokens = (access, refresh, user) => {
+            localStorage.setItem('access_token', access);
+            localStorage.setItem('refresh_token', refresh);
+            localStorage.setItem('user_data', JSON.stringify(user));
+            // Set cookie for backend view access
+            document.cookie = `access_token=${access}; path=/; max-age=86400; SameSite=Strict`;
+        };
+
+        const clearTokens = () => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_data');
+            document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Strict";
+        };
+
+        // Render correct navigation items depending on auth status
+        const updateNavbar = () => {
+            const user = getUserData();
+            const authLinksDiv = document.getElementById('auth-links');
+            
+            if (user && getAccessToken()) {
+                authLinksDiv.innerHTML = `
+                    <span class="welcome-text">Welcome, <strong>${user.username}</strong></span>
+                    <a href="/accounts/profile/" class="nav-link profile-link" id="nav-profile">Profile</a>
+                    <a href="#" class="nav-link logout-btn" id="logout-btn">Logout</a>
+                `;
+                
+                // Add logout handler
+                document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const refresh = getRefreshToken();
+                    const access = getAccessToken();
+                    
+                    try {
+                        await fetch('/accounts/logout/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${access}`
+                            },
+                            body: JSON.stringify({ refresh: refresh })
+                        });
+                    } catch (err) {
+                        console.error('API logout error:', err);
+                    }
+                    
+                    clearTokens();
+                    window.location.href = '/accounts/login/';
+                });
+            } else {
+                authLinksDiv.innerHTML = `
+                    <a href="/accounts/login/" class="nav-link login-btn">Login</a>
+                    <a href="/accounts/register/" class="nav-link register-btn">Register</a>
+                `;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavbar();
+            
+            // Highlight current page link
+            const path = window.location.pathname;
+            if (path === '/') {
+                document.getElementById('nav-predict')?.classList.add('active');
+            } else if (path.includes('/analysis/')) {
+                document.getElementById('nav-dashboard')?.classList.add('active');
+            } else if (path.includes('/profile/')) {
+                document.getElementById('nav-profile')?.classList.add('active');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
