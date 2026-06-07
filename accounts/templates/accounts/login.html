@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - MediScan{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Access Platform</h2>
+            <p>Sign in to your clinician account</p>
+        </div>
+        
+        <div id="error-alert" class="auth-alert" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span id="error-message"></span>
+        </div>
+
+        <form id="login-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-input" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-input" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submit-btn">Authenticate</button>
+        </form>
+        
+        <div class="auth-footer">
+            Don't have an account? <a href="/accounts/register/">Register here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // If already logged in, redirect to home
+        if (getAccessToken()) {
+            window.location.href = '/';
+        }
+
+        const loginForm = document.getElementById('login-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorAlert = document.getElementById('error-alert');
+        const errorMessage = document.getElementById('error-message');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI Feedback
+            submitBtn.textContent = 'Authenticating...';
+            submitBtn.disabled = true;
+            errorAlert.style.display = 'none';
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/accounts/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Save tokens in localStorage and cookies
+                    setTokens(data.access, data.refresh, data.user);
+                    
+                    // Redirect to dashboard/home
+                    window.location.href = '/';
+                } else {
+                    errorMessage.textContent = data.error || 'Invalid username or password.';
+                    errorAlert.style.display = 'flex';
+                    submitBtn.textContent = 'Authenticate';
+                    submitBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                errorMessage.textContent = 'A connection error occurred. Please try again.';
+                errorAlert.style.display = 'flex';
+                submitBtn.textContent = 'Authenticate';
+                submitBtn.disabled = false;
+            }
+        });
+    });
+</script>
+{% endblock %}

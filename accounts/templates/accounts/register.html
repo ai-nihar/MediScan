@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - MediScan{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Register a new clinician profile</p>
+        </div>
+        
+        <div id="error-alert" class="auth-alert" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span id="error-message"></span>
+        </div>
+
+        <div id="success-alert" class="auth-alert-success" style="display: none;">
+            Account successfully created! Redirecting to login...
+        </div>
+
+        <form id="register-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-input" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" id="email" name="email" class="form-input" required autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-input" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+                <label for="password2" class="form-label">Confirm Password</label>
+                <input type="password" id="password2" name="password2" class="form-input" required autocomplete="new-password">
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submit-btn">Register Account</button>
+        </form>
+        
+        <div class="auth-footer">
+            Already have an account? <a href="/accounts/login/">Login here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // If already logged in, redirect to home
+        if (getAccessToken()) {
+            window.location.href = '/';
+        }
+
+        const registerForm = document.getElementById('register-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorAlert = document.getElementById('error-alert');
+        const errorMessage = document.getElementById('error-message');
+        const successAlert = document.getElementById('success-alert');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI Feedback
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+            errorAlert.style.display = 'none';
+            successAlert.style.display = 'none';
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value;
+
+            if (password !== password2) {
+                errorMessage.textContent = 'Passwords do not match.';
+                errorAlert.style.display = 'flex';
+                submitBtn.textContent = 'Register Account';
+                submitBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch('/accounts/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ username, email, password, password2 })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successAlert.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/accounts/login/';
+                    }, 2000);
+                } else {
+                    // Parse field errors from API
+                    let errorText = 'Registration failed.';
+                    if (data.username) {
+                        errorText = `Username error: ${data.username.join(' ')}`;
+                    } else if (data.email) {
+                        errorText = `Email error: ${data.email.join(' ')}`;
+                    } else if (data.password) {
+                        errorText = `Password error: ${data.password.join(' ')}`;
+                    } else if (data.password2) {
+                        errorText = `Confirmation error: ${data.password2.join(' ')}`;
+                    } else if (data.non_field_errors) {
+                        errorText = data.non_field_errors.join(' ');
+                    } else if (data.error) {
+                        errorText = data.error;
+                    }
+                    errorMessage.textContent = errorText;
+                    errorAlert.style.display = 'flex';
+                    submitBtn.textContent = 'Register Account';
+                    submitBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                errorMessage.textContent = 'A connection error occurred. Please try again.';
+                errorAlert.style.display = 'flex';
+                submitBtn.textContent = 'Register Account';
+                submitBtn.disabled = false;
+            }
+        });
+    });
+</script>
+{% endblock %}
