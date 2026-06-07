@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Scan - MediScan{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 550px;">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Diagnostic Scan</h2>
+            <p>Upload a medical scan for instant AI classification</p>
+        </div>
+
+        {% if error %}
+        <div class="auth-alert">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="disease_type" class="form-label">Diagnostic Category</label>
+                <select id="disease_type" name="disease_type" class="form-input" style="appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238a99ad%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.65rem auto; padding-right: 2.5rem;" required>
+                    <option value="" disabled selected>Select analysis model...</option>
+                    <option value="pneumonia">Chest X-Ray (Pneumonia)</option>
+                    <option value="retinopathy">Retinal Fundus Image (Diabetic Retinopathy)</option>
+                    <option value="skin_cancer">Dermoscopic Image (Skin Cancer)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Scan Image</label>
+                <div class="file-dropzone" id="dropzone">
+                    <svg class="dropzone-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <p class="dropzone-text" id="dropzone-text">Drag & drop scan image, or <span>browse files</span></p>
+                    <input type="file" id="image" name="image" class="file-input" accept="image/*" required>
+                    <img id="image-preview" class="preview-img" style="display: none;" />
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="analyze-btn">Execute Diagnostics</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .file-dropzone {
+        border: 2px dashed rgba(0, 212, 255, 0.25);
+        border-radius: 8px;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        background-color: rgba(10, 15, 30, 0.4);
+        cursor: pointer;
+        position: relative;
+        transition: border-color var(--transition-speed), background-color var(--transition-speed), box-shadow var(--transition-speed);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .file-dropzone.dragover {
+        border-color: var(--accent);
+        background-color: rgba(0, 212, 255, 0.05);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+    }
+
+    .dropzone-icon {
+        color: var(--text-secondary);
+        transition: color var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .file-dropzone:hover .dropzone-icon {
+        color: var(--accent);
+        transform: translateY(-3px);
+    }
+
+    .dropzone-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .dropzone-text span {
+        color: var(--accent);
+        font-weight: 500;
+    }
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .preview-img {
+        max-width: 100%;
+        max-height: 180px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        margin-top: 0.5rem;
+        object-fit: contain;
+        z-index: 10;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('image');
+        const previewImg = document.getElementById('image-preview');
+        const dropzoneText = document.getElementById('dropzone-text');
+        const dropzoneIcon = dropzone.querySelector('.dropzone-icon');
+        const form = document.querySelector('.upload-form');
+        const submitBtn = document.getElementById('analyze-btn');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight dropzone on drag over
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'), false);
+        });
+
+        // Handle dropped files
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) {
+                fileInput.files = files;
+                handleFiles(files[0]);
+            }
+        });
+
+        // Handle selected files
+        fileInput.addEventListener('change', (e) => {
+            if (fileInput.files.length) {
+                handleFiles(fileInput.files[0]);
+            }
+        });
+
+        function handleFiles(file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = () => {
+                    previewImg.src = reader.result;
+                    previewImg.style.display = 'block';
+                    dropzoneIcon.style.display = 'none';
+                    dropzoneText.textContent = `Selected: ${file.name}`;
+                };
+            }
+        }
+
+        // Loading feedback on submit
+        form.addEventListener('submit', () => {
+            submitBtn.textContent = 'Running Neural Classification...';
+            submitBtn.disabled = true;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block title %}Diagnostic Result - MediScan{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-card">
+        <div class="result-header">
+            <h2>Diagnostic Results</h2>
+            <p>Model classification: <strong>{{ prediction.get_disease_type_display }}</strong></p>
+        </div>
+
+        <div class="result-grid">
+            <div class="scan-column">
+                <h3>Submitted Scan</h3>
+                <div class="image-wrapper">
+                    <img src="{{ prediction.image.url }}" alt="Submitted scan" class="scan-image">
+                </div>
+            </div>
+
+            <div class="metrics-column">
+                <h3>Analysis Output</h3>
+                
+                {% if prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign Lesion" %}
+                <div class="status-banner status-safe">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <div>
+                        <div class="status-title">Negative Detection</div>
+                        <div class="status-desc">Scan classified as: {{ prediction.result }}</div>
+                    </div>
+                </div>
+                {% elif prediction.result == "Error" %}
+                <div class="status-banner status-error">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div>
+                        <div class="status-title">System Error</div>
+                        <div class="status-desc">Failed to complete network inference.</div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="status-banner status-danger">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <div>
+                        <div class="status-title">Positive Detection</div>
+                        <div class="status-desc">Scan classified as: {{ prediction.result }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <span class="metric-label">Model Confidence</span>
+                        <span class="metric-value">{{ prediction.confidence }}%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ prediction.confidence }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="tips-card">
+                    <h4>Clinical Recommendations</h4>
+                    <div class="tips-content">
+                        {{ prediction.prevention_tips|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer-actions">
+            <a href="/" class="submit-btn" style="text-decoration: none; text-align: center; display: inline-block;">New Scan Analysis</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-container {
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        animation: fadeIn var(--transition-speed) ease-out;
+    }
+
+    .result-card {
+        background: var(--bg-secondary);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .result-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .result-header {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 1rem;
+    }
+
+    .result-header h2 {
+        font-family: var(--font-heading);
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .result-header p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .result-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 2.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .scan-column h3, .metrics-column h3 {
+        font-family: var(--font-heading);
+        font-size: 1.1rem;
+        font-weight: 550;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+    }
+
+    .image-wrapper {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: rgba(10, 15, 30, 0.6);
+        padding: 0.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .scan-image {
+        max-width: 100%;
+        max-height: 350px;
+        border-radius: 6px;
+        object-fit: contain;
+    }
+
+    /* Status Banners */
+    .status-banner {
+        border-radius: 8px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .status-safe {
+        background-color: rgba(6, 214, 160, 0.1);
+        border: 1px solid rgba(6, 214, 160, 0.25);
+        color: var(--success);
+    }
+
+    .status-danger {
+        background-color: rgba(255, 77, 109, 0.1);
+        border: 1px solid rgba(255, 77, 109, 0.25);
+        color: var(--danger);
+    }
+
+    .status-error {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+    }
+
+    .status-title {
+        font-weight: 650;
+        font-size: 1.05rem;
+        margin-bottom: 0.15rem;
+        font-family: var(--font-heading);
+    }
+
+    .status-desc {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* Metric card */
+    .metric-card {
+        background-color: rgba(10, 15, 30, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .metric-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .metric-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .metric-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--accent);
+        font-family: var(--font-heading);
+        text-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .progress-bar-container {
+        height: 6px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: var(--accent);
+        border-radius: 3px;
+        box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* Recommendations */
+    .tips-card {
+        background-color: rgba(10, 15, 30, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 1.25rem;
+    }
+
+    .tips-card h4 {
+        font-family: var(--font-heading);
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 0.5rem;
+    }
+
+    .tips-content p {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-footer-actions {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 1.5rem;
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+        .result-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        .result-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
