@@ -31,13 +31,32 @@ def upload_view(request):
         
         # Run inference using the preprocessed saved image
         try:
-            result, confidence = predict_disease(disease_type, prediction.image.path)
-            tips = get_prevention_tips(disease_type, result)
+            from .utils.predict import predictor
             
-            # Update prediction with final inference results
+            # Get detailed prediction dictionary
+            res = predictor.predict(prediction.image.path, disease_type)
+            result = res['result']
+            confidence = res['confidence']
+            is_positive = res['is_positive']
+            
+            # Retrieve prevention tips dictionary based on classification status
+            tips_dict = get_prevention_tips(disease_type, is_positive)
+            
+            # Format the dictionary into a clean, structured bullet-point layout
+            formatted_tips = f"Severity Level: {tips_dict['severity']}\n\nImmediate Steps:\n"
+            for step in tips_dict['immediate_steps']:
+                formatted_tips += f"- {step}\n"
+            formatted_tips += "\nLifestyle Recommendations:\n"
+            for item in tips_dict['lifestyle']:
+                formatted_tips += f"- {item}\n"
+            formatted_tips += f"\nMedications:\n- {tips_dict['medications']}\n"
+            formatted_tips += f"\nFollow-up:\n- {tips_dict['follow_up']}\n"
+            formatted_tips += f"\nDisclaimer: {tips_dict['disclaimer']}"
+            
+            # Update prediction record
             prediction.result = result
             prediction.confidence = confidence
-            prediction.prevention_tips = tips
+            prediction.prevention_tips = formatted_tips
             prediction.save()
             
             return redirect('predictor:result', pk=prediction.pk)
