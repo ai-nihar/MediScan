@@ -63,7 +63,7 @@
                         <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
                         <td>{{ item.get_disease_type_display }}</td>
                         <td>
-                            {% if item.result == "Normal" or item.result == "No Diabetic Retinopathy" or item.result == "Benign Lesion" %}
+                            {% if item.result == "Normal" or item.result == "No Diabetic Retinopathy" or item.result == "Benign" %}
                             <span class="badge badge-success">{{ item.result }}</span>
                             {% elif item.result == "Error" %}
                             <span class="badge badge-error">Failed</span>
