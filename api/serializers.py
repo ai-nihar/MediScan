@@ -1,18 +1,18 @@
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from predictor.models import Prediction, DatasetStats
 
+User = get_user_model()
+
 class PredictionSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
-    result = serializers.ReadOnlyField()
-    confidence = serializers.ReadOnlyField()
-    prevention_tips = serializers.ReadOnlyField()
-    created_at = serializers.ReadOnlyField()
+    user_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Prediction
         fields = [
             'id',
             'user',
+            'user_name',
             'disease_type',
             'image',
             'result',
@@ -20,15 +20,26 @@ class PredictionSerializer(serializers.ModelSerializer):
             'prevention_tips',
             'created_at'
         ]
+        read_only_fields = ['id', 'user', 'result', 'confidence', 'prevention_tips', 'created_at']
+
+    def get_user_name(self, obj):
+        return obj.user.username
+
+
+class PredictionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prediction
+        fields = ['disease_type', 'image']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'date_joined']
+        read_only_fields = ['id', 'username', 'email', 'date_joined']
+
 
 class DatasetStatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatasetStats
-        fields = [
-            'disease_type',
-            'total_images',
-            'positive_cases',
-            'negative_cases',
-            'model_accuracy',
-            'last_updated'
-        ]
+        fields = '__all__'

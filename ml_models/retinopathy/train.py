@@ -301,3 +301,30 @@ plt.tight_layout()
 plt.savefig(history_plot_path)
 plt.close()
 print(f"Training history plot saved to {history_plot_path}")
+
+# Save training history as JSON
+history_data = {
+    'epochs': list(range(1, len(history['accuracy']) + 1)),
+    'accuracy': history['accuracy'],
+    'val_accuracy': history['val_accuracy'],
+    'loss': history['loss'],
+    'val_loss': history['val_loss'],
+    'train_acc': history['accuracy'],
+    'val_acc': history['val_accuracy']
+}
+with open(os.path.join(model_save_dir, 'history.json'), 'w') as f:
+    json.dump(history_data, f)
+print(f"Training history JSON saved to {os.path.join(model_save_dir, 'history.json')}")
+
+# Save evaluation metrics as JSON
+from sklearn.metrics import precision_score, recall_score, f1_score
+metrics_data = {
+    'accuracy': float(best_acc),
+    'precision': float(precision_score(all_trues, all_preds, average='weighted')),
+    'recall': float(recall_score(all_trues, all_preds, average='weighted')),
+    'f1': float(f1_score(all_trues, all_preds, average='weighted'))
+}
+with open(os.path.join(model_save_dir, 'metrics.json'), 'w') as f:
+    json.dump(metrics_data, f)
+print(f"Evaluation metrics JSON saved to {os.path.join(model_save_dir, 'metrics.json')}")
+

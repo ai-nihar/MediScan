@@ -1,9 +1,11 @@
 from django.urls import path
-from .views import upload_view, result_view
+from .views import UploadView, ResultView, DashboardView, HistoryView
 
 app_name = 'predictor'
 
 urlpatterns = [
-    path('', upload_view, name='upload'),
-    path('result/<int:pk>/', result_view, name='result'),
+    path('', UploadView.as_view(), name='upload'),
+    path('result/<int:pk>/', ResultView.as_view(), name='result'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('history/', HistoryView.as_view(), name='history'),
 ]

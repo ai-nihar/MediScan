@@ -1,118 +1,244 @@
 {% extends 'base.html' %}
 
-{% block title %}Upload Scan - MediScan{% endblock %}
+{% block title %}Upload Scan - MediScan AI{% endblock %}
+
+{% block page_title %}Upload Diagnostic Scan{% endblock %}
 
 {% block content %}
-<div class="auth-container" style="max-width: 550px;">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h2>Diagnostic Scan</h2>
-            <p>Upload a medical scan for instant AI classification</p>
+<div class="container-fluid py-2">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="h4 text-primary" style="font-family: 'Space Grotesk', sans-serif;">Execute Neural Diagnostic Analysis</h2>
+            <p class="text-secondary" style="font-family: 'Inter', sans-serif;">Select a diagnostic model category and upload a medical scan for instant evaluation.</p>
         </div>
+    </div>
 
-        {% if error %}
-        <div class="auth-alert">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <span>{{ error }}</span>
-        </div>
-        {% endif %}
+    {% if error %}
+    <div class="alert alert-danger border-danger bg-dark-subtle text-danger mb-4 d-flex align-items-center gap-2" role="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>{{ error }}</span>
+    </div>
+    {% endif %}
 
-        <form method="POST" enctype="multipart/form-data" class="upload-form">
-            {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="disease_type" class="form-label">Diagnostic Category</label>
-                <select id="disease_type" name="disease_type" class="form-input" style="appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238a99ad%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.65rem auto; padding-right: 2.5rem;" required>
-                    <option value="" disabled selected>Select analysis model...</option>
-                    <option value="pneumonia">Chest X-Ray (Pneumonia)</option>
-                    <option value="retinopathy">Retinal Fundus Image (Diabetic Retinopathy)</option>
-                    <option value="skin_cancer">Dermoscopic Image (Skin Cancer)</option>
-                </select>
-            </div>
+    <div class="row g-4">
+        <!-- Left Column: Disease Select Cards -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <h2 class="h5 mb-4 text-primary" style="font-family: 'Space Grotesk', sans-serif;">Select Disease to Analyze</h2>
+                
+                <div class="disease-cards-container d-flex flex-column gap-3">
+                    <!-- Card 1: Pneumonia -->
+                    <label class="disease-select-card" for="disease-pneumonia">
+                        <input type="radio" name="disease_type_selector" id="disease-pneumonia" value="pneumonia" checked>
+                        <div class="card-content">
+                            <div class="card-icon">🫁</div>
+                            <div class="card-details">
+                                <span class="card-title">Pneumonia Detection</span>
+                                <span class="card-description">Upload chest X-ray scan image</span>
+                            </div>
+                        </div>
+                    </label>
 
-            <div class="form-group">
-                <label class="form-label">Scan Image</label>
-                <div class="file-dropzone" id="dropzone">
-                    <svg class="dropzone-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    <p class="dropzone-text" id="dropzone-text">Drag & drop scan image, or <span>browse files</span></p>
-                    <input type="file" id="image" name="image" class="file-input" accept="image/*" required>
-                    <img id="image-preview" class="preview-img" style="display: none;" />
+                    <!-- Card 2: Retinopathy -->
+                    <label class="disease-select-card" for="disease-retinopathy">
+                        <input type="radio" name="disease_type_selector" id="disease-retinopathy" value="retinopathy">
+                        <div class="card-content">
+                            <div class="card-icon">👁️</div>
+                            <div class="card-details">
+                                <span class="card-title">Diabetic Retinopathy</span>
+                                <span class="card-description">Upload retinal fundus photograph</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Card 3: Skin Cancer -->
+                    <label class="disease-select-card" for="disease-skincancer">
+                        <input type="radio" name="disease_type_selector" id="disease-skincancer" value="skin_cancer">
+                        <div class="card-content">
+                            <div class="card-icon">🔬</div>
+                            <div class="card-details">
+                                <span class="card-title">Skin Cancer Detection</span>
+                                <span class="card-description">Upload dermoscopic skin lesion scan</span>
+                            </div>
+                        </div>
+                    </label>
                 </div>
             </div>
+        </div>
 
-            <button type="submit" class="submit-btn" id="analyze-btn">Execute Diagnostics</button>
-        </form>
+        <!-- Right Column: Upload and Info Panel -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <form method="POST" enctype="multipart/form-data" id="diagnostic-upload-form" class="h-100 d-flex flex-column justify-content-between">
+                    {% csrf_token %}
+                    
+                    <!-- Hidden field to bind the selected disease_type from radio selector -->
+                    <input type="hidden" name="disease_type" id="disease_type_hidden" value="pneumonia">
+
+                    <!-- Upload Dropzone -->
+                    <div class="mb-4">
+                        <h3 class="h6 text-secondary text-uppercase mb-3" style="letter-spacing: 0.5px;">Diagnostic Scan Upload</h3>
+                        <div class="upload-dropzone" id="upload-dropzone">
+                            <svg class="upload-icon mb-2" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <p class="upload-text m-0" id="upload-text">Drag & drop scan image, or <span class="text-info font-weight-bold">browse files</span></p>
+                            <p class="text-secondary small mt-1">Supports: JPG, JPEG, PNG, BMP (Max 10MB)</p>
+                            <input type="file" id="image-file-input" name="image" class="file-input-hidden" accept=".jpg,.jpeg,.png,.bmp" required style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
+                            <img id="upload-preview" class="upload-preview-img" style="display: none;" />
+                        </div>
+                    </div>
+
+                    <!-- Info Panel -->
+                    <div class="info-panel p-3 mb-4" id="disease-info-panel">
+                        <h4 class="h6 text-info mb-2 uppercase" id="info-panel-title">Pneumonia Classifier</h4>
+                        <p class="small text-secondary mb-2" id="info-panel-desc">Analyzes posterior-anterior chest radiography scans to determine presence of pulmonary consolidations (pneumonia infection).</p>
+                        <div class="d-flex gap-4">
+                            <span class="small text-secondary">Scan Type: <strong class="text-primary" id="info-panel-type">Chest X-Ray</strong></span>
+                            <span class="small text-secondary">Model Accuracy: <strong class="text-green" id="info-panel-accuracy">92.50%</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn py-3 mt-0 d-flex justify-content-center align-items-center gap-2" id="btn-submit-scan">
+                        <span id="btn-text">Execute Diagnostics</span>
+                        <div class="spinner-border spinner-border-sm text-dark" id="btn-spinner" role="status" style="display: none;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .upload-form {
+    /* Radio Cards Container */
+    .disease-select-card {
+        cursor: pointer;
+        display: block;
+        width: 100%;
+    }
+
+    .disease-select-card input[type="radio"] {
+        display: none;
+    }
+
+    .disease-select-card .card-content {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.25rem;
+        background: rgba(17, 29, 58, 0.4);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .disease-select-card .card-icon {
+        font-size: 2rem;
+        transition: transform 0.2s ease;
+    }
+
+    .disease-select-card .card-details {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
     }
-    
-    .file-dropzone {
-        border: 2px dashed rgba(0, 212, 255, 0.25);
+
+    .disease-select-card .card-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+    }
+
+    .disease-select-card .card-description {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    /* Hover and Selected effects */
+    .disease-select-card:hover .card-content {
+        border-color: rgba(0, 212, 255, 0.3);
+        background: rgba(17, 29, 58, 0.6);
+    }
+
+    .disease-select-card:hover .card-icon {
+        transform: scale(1.1) rotate(2deg);
+    }
+
+    .disease-select-card input[type="radio"]:checked + .card-content {
+        border-color: var(--accent-cyan);
+        background: rgba(0, 212, 255, 0.05);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+    }
+
+    /* Dropzone */
+    .upload-dropzone {
+        border: 2px dashed var(--border);
+        background: rgba(7, 13, 26, 0.4);
         border-radius: 8px;
         padding: 2.5rem 1.5rem;
         text-align: center;
-        background-color: rgba(10, 15, 30, 0.4);
         cursor: pointer;
         position: relative;
-        transition: border-color var(--transition-speed), background-color var(--transition-speed), box-shadow var(--transition-speed);
+        transition: all 0.2s ease;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
     }
 
-    .file-dropzone.dragover {
-        border-color: var(--accent);
-        background-color: rgba(0, 212, 255, 0.05);
+    .upload-dropzone.dragover {
+        border-color: var(--accent-cyan);
+        background: rgba(0, 212, 255, 0.05);
         box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
     }
 
-    .dropzone-icon {
+    .upload-icon {
         color: var(--text-secondary);
-        transition: color var(--transition-speed), transform var(--transition-speed);
+        transition: all 0.2s ease;
     }
 
-    .file-dropzone:hover .dropzone-icon {
-        color: var(--accent);
+    .upload-dropzone:hover .upload-icon {
+        color: var(--accent-cyan);
         transform: translateY(-3px);
     }
 
-    .dropzone-text {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-    }
-
-    .dropzone-text span {
-        color: var(--accent);
-        font-weight: 500;
-    }
-
-    .file-input {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-    }
-
-    .preview-img {
+    .upload-preview-img {
         max-width: 100%;
-        max-height: 180px;
+        max-height: 220px;
         border-radius: 6px;
-        border: 1px solid var(--border-color);
-        margin-top: 0.5rem;
+        border: 1px solid var(--border);
+        margin-top: 1rem;
         object-fit: contain;
-        z-index: 10;
+        z-index: 5;
+    }
+
+    /* Info Panel */
+    .info-panel {
+        background: rgba(30, 58, 95, 0.1);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
+    .text-green {
+        color: var(--accent-green);
+    }
+
+    .submit-btn {
+        background-color: var(--accent-cyan);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 6px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .submit-btn:hover {
+        background-color: #33dcff;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
     }
 </style>
 {% endblock %}
@@ -120,25 +246,74 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const dropzone = document.getElementById('dropzone');
-        const fileInput = document.getElementById('image');
-        const previewImg = document.getElementById('image-preview');
-        const dropzoneText = document.getElementById('dropzone-text');
-        const dropzoneIcon = dropzone.querySelector('.dropzone-icon');
-        const form = document.querySelector('.upload-form');
-        const submitBtn = document.getElementById('analyze-btn');
+        const dropzone = document.getElementById('upload-dropzone');
+        const fileInput = document.getElementById('image-file-input');
+        const previewImg = document.getElementById('upload-preview');
+        const uploadText = document.getElementById('upload-text');
+        const uploadIcon = dropzone.querySelector('.upload-icon');
+        const form = document.getElementById('diagnostic-upload-form');
+        const submitBtn = document.getElementById('btn-submit-scan');
+        const btnText = document.getElementById('btn-text');
+        const spinner = document.getElementById('btn-spinner');
+        const diseaseHidden = document.getElementById('disease_type_hidden');
+
+        const diseaseMeta = {
+            pneumonia: {
+                title: "Pneumonia Classifier",
+                desc: "Analyzes posterior-anterior chest radiography scans to determine the presence of pulmonary consolidations (pneumonia infection).",
+                type: "Chest X-Ray",
+                accuracy: "92.50%"
+            },
+            retinopathy: {
+                title: "Diabetic Retinopathy Classifier",
+                desc: "Analyzes retinal fundus photography to detect microvascular damage, microaneurysms, and hemorrhages.",
+                type: "Retinal Fundus Image",
+                accuracy: "88.00%"
+            },
+            skin_cancer: {
+                title: "Skin Cancer Classifier",
+                desc: "Analyzes high-resolution dermoscopic scans of skin lesions to screen for malignant melanoma vs benign lesions.",
+                type: "Dermoscopic Image",
+                accuracy: "86.57%"
+            }
+        };
+
+        // Radio click event handler to update hidden disease type field and the info panel
+        document.querySelectorAll('input[name="disease_type_selector"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const val = e.target.value;
+                diseaseHidden.value = val;
+                
+                const meta = diseaseMeta[val];
+                if (meta) {
+                    document.getElementById('info-panel-title').innerText = meta.title;
+                    document.getElementById('info-panel-desc').innerText = meta.desc;
+                    document.getElementById('info-panel-type').innerText = meta.type;
+                    document.getElementById('info-panel-accuracy').innerText = meta.accuracy;
+                }
+            });
+        });
+
+        // Check query param to pre-select correct disease model
+        const urlParams = new URLSearchParams(window.location.search);
+        const typeParam = urlParams.get('type');
+        if (typeParam) {
+            const targetRadio = document.querySelector(`input[name="disease_type_selector"][value="${typeParam}"]`);
+            if (targetRadio) {
+                targetRadio.checked = true;
+                targetRadio.dispatchEvent(new Event('change'));
+            }
+        }
 
         // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, preventDefaults, false);
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
         });
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // Highlight dropzone on drag over
+        // Add visual dragover states
         ['dragenter', 'dragover'].forEach(eventName => {
             dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
         });
@@ -147,40 +322,61 @@
             dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'), false);
         });
 
-        // Handle dropped files
+        // Handle drop event
         dropzone.addEventListener('drop', (e) => {
             const dt = e.dataTransfer;
             const files = dt.files;
-            if (files.length) {
+            if (files.length > 0) {
                 fileInput.files = files;
                 handleFiles(files[0]);
             }
-        });
+        }, false);
 
-        // Handle selected files
+        // Handle browse file input select
         fileInput.addEventListener('change', (e) => {
-            if (fileInput.files.length) {
-                handleFiles(fileInput.files[0]);
+            if (e.target.files.length > 0) {
+                handleFiles(e.target.files[0]);
             }
         });
 
         function handleFiles(file) {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onloadend = () => {
-                    previewImg.src = reader.result;
-                    previewImg.style.display = 'block';
-                    dropzoneIcon.style.display = 'none';
-                    dropzoneText.textContent = `Selected: ${file.name}`;
-                };
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert("File size exceeds 10MB. Please upload a smaller scan.");
+                fileInput.value = "";
+                return;
             }
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp'];
+            if (!validTypes.includes(file.type)) {
+                alert("Unsupported file format. Please upload a JPG, JPEG, PNG or BMP image.");
+                fileInput.value = "";
+                return;
+            }
+
+            // Render Preview
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                previewImg.src = reader.result;
+                previewImg.style.display = "block";
+                uploadIcon.style.display = "none";
+                uploadText.style.display = "none";
+            };
         }
 
-        // Loading feedback on submit
-        form.addEventListener('submit', () => {
-            submitBtn.textContent = 'Running Neural Classification...';
+        // Handle submit action: show loader, disable button
+        form.addEventListener('submit', (e) => {
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert("Please select or drop a scan image to analyze.");
+                return;
+            }
+            
             submitBtn.disabled = true;
+            btnText.innerText = "Analyzing scan...";
+            spinner.style.display = "inline-block";
         });
     });
 </script>

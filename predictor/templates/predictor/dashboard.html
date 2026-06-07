@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MediScan AI{% endblock %}
+
+{% block page_title %}Clinician Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+    <!-- TOP ROW: 4 Stat Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Stat 1: Total Scans -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100" style="border-left: 3px solid var(--accent-cyan);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Total Scans</span>
+                    <span style="font-size: 1.25rem;">🔍</span>
+                </div>
+                <div class="h2 mb-1 text-primary font-weight-bold">{{ total_predictions }}</div>
+                <div class="small text-secondary">Cumulative Diagnostics</div>
+            </div>
+        </div>
+
+        <!-- Stat 2: Pathology Detected -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100" style="border-left: 3px solid var(--accent-red);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Pathology Detected</span>
+                    <span style="font-size: 1.25rem;">⚠️</span>
+                </div>
+                <div class="h2 mb-1 text-danger font-weight-bold">{{ diseases_detected }}</div>
+                <div class="small text-secondary">Positive Screenings</div>
+            </div>
+        </div>
+
+        <!-- Stat 3: Scans This Week -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100" style="border-left: 3px solid var(--accent-green);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Scans This Week</span>
+                    <span style="font-size: 1.25rem;">📈</span>
+                </div>
+                <div class="h2 mb-1 text-green font-weight-bold">{{ scans_this_week }}</div>
+                <div class="small text-secondary">Active In Last 7 Days</div>
+            </div>
+        </div>
+
+        <!-- Stat 4: Account Creation -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100" style="border-left: 3px solid var(--border);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Clinician Joined</span>
+                    <span style="font-size: 1.25rem;">🩺</span>
+                </div>
+                <div class="h6 mb-1 text-primary font-weight-bold" style="padding-top: 6px; padding-bottom: 6px;">{{ account_created|date:"Y-m-d" }}</div>
+                <div class="small text-secondary">Portal Activation Date</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MIDDLE SECTION: Recent Activity Table -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="glass-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="h5 text-primary m-0" style="font-family: 'Space Grotesk', sans-serif;">Recent Diagnostic Activities</h3>
+                    <a href="/history/" class="text-info text-decoration-none small font-weight-bold">View Full History &rarr;</a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle m-0" style="background: transparent;">
+                        <thead>
+                            <tr class="text-secondary" style="border-bottom: 2px solid var(--border);">
+                                <th style="background: transparent;">Date & Time</th>
+                                <th style="background: transparent;">Diagnostic Model</th>
+                                <th style="background: transparent;">Classification Outcome</th>
+                                <th style="background: transparent;">Confidence Level</th>
+                                <th class="text-end" style="background: transparent;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recent_predictions %}
+                            <tr style="border-bottom: 1px solid rgba(30, 58, 95, 0.25);">
+                                <td class="text-secondary small" style="background: transparent;">{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                                <td class="text-primary font-weight-bold" style="background: transparent;">{{ item.get_disease_type_display }}</td>
+                                <td style="background: transparent;">
+                                    {% if item.result == "Normal" or item.result == "No Diabetic Retinopathy" or item.result == "Benign" %}
+                                    <span class="badge px-3 py-2 bg-success-subtle text-success border border-success-subtle">{{ item.result }}</span>
+                                    {% elif item.result == "Error" %}
+                                    <span class="badge px-3 py-2 bg-secondary-subtle text-secondary border border-secondary-subtle">Failed</span>
+                                    {% else %}
+                                    <span class="badge px-3 py-2 bg-danger-subtle text-danger border border-danger-subtle">{{ item.result }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-info font-weight-bold mono-text" style="background: transparent;">{{ item.confidence }}%</td>
+                                <td class="text-end" style="background: transparent;">
+                                    <a href="/result/{{ item.pk }}/" class="btn btn-sm btn-outline-info">Report</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-secondary py-5" style="background: transparent;">
+                                    No scan analyses run yet. Use the <a href="/" class="text-info text-decoration-none">Analyze Scan</a> portal to run your first report.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM ROW: Quick Analyze & Health Tips Carousel -->
+    <div class="row g-4">
+        <!-- Left: Quick Analyze -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <h3 class="h5 text-primary mb-3" style="font-family: 'Space Grotesk', sans-serif;">Quick Diagnostic Launch</h3>
+                <p class="text-secondary small mb-4">Instantly redirect to the neural screening upload consoles with preselected target configurations.</p>
+                
+                <div class="row g-3">
+                    <div class="col-sm-4">
+                        <a href="/?type=pneumonia" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
+                            <span style="font-size: 1.5rem;">🫁</span>
+                            <span class="small font-weight-bold">Pneumonia</span>
+                        </a>
+                    </div>
+                    <div class="col-sm-4">
+                        <a href="/?type=retinopathy" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
+                            <span style="font-size: 1.5rem;">👁️</span>
+                            <span class="small font-weight-bold">Retinopathy</span>
+                        </a>
+                    </div>
+                    <div class="col-sm-4">
+                        <a href="/?type=skin_cancer" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
+                            <span style="font-size: 1.5rem;">🔬</span>
+                            <span class="small font-weight-bold">Skin Lesion</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Health Tips Carousel -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h3 class="h5 text-primary mb-3" style="font-family: 'Space Grotesk', sans-serif;">Clinical Health Advisory</h3>
+                    
+                    <div id="health-tips-container" class="position-relative py-2" style="min-height: 100px;">
+                        <!-- Tips will rotate here via JS -->
+                        <div class="health-tip-slide active">
+                            <span class="badge bg-info-subtle text-info border border-info-subtle mb-2">Respiratory Wellness</span>
+                            <p class="text-secondary small m-0 font-italic" id="tip-text">Optimize lung health by staying active, drinking sufficient fluids to thin respiratory secretions, and obtaining seasonal immunizations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-1 mt-3">
+                    <button class="btn btn-sm btn-outline-secondary" id="tip-btn-prev">&laquo;</button>
+                    <button class="btn btn-sm btn-outline-secondary" id="tip-btn-next">&raquo;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .text-green {
+        color: var(--accent-green);
+    }
+    
+    .table-dark {
+        --bs-table-bg: transparent !important;
+    }
+    
+    .health-tip-slide {
+        display: none;
+        animation: fadeIn 0.4s ease-in-out forwards;
+    }
+
+    .health-tip-slide.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Clinical Health Tips list
+        const tips = [
+            {
+                category: "Respiratory Wellness",
+                text: "Optimize lung health by staying active, drinking sufficient fluids to thin respiratory secretions, and obtaining seasonal immunizations."
+            },
+            {
+                category: "Retinal Health",
+                text: "Protect visual acuity through strict HbA1c glycemic control, regular dilated retinal examinations, and maintaining a blood pressure below 130/80 mmHg."
+            },
+            {
+                category: "Dermatological Protection",
+                text: "Shield skin cell DNA from UV mutation by applying broad-spectrum SPF 30+ daily and conducting monthly ABCDE mole self-evaluations."
+            }
+        ];
+
+        let currentTipIndex = 0;
+        const container = document.getElementById('health-tips-container');
+        const btnPrev = document.getElementById('tip-btn-prev');
+        const btnNext = document.getElementById('tip-btn-next');
+        let rotationTimer = null;
+
+        function displayTip(index) {
+            const tip = tips[index];
+            container.innerHTML = `
+                <div class="health-tip-slide active">
+                    <span class="badge bg-info-subtle text-info border border-info-subtle mb-2">${tip.category}</span>
+                    <p class="text-secondary small m-0" style="font-style: italic;">"${tip.text}"</p>
+                </div>
+            `;
+        }
+
+        function showNextTip() {
+            currentTipIndex = (currentTipIndex + 1) % tips.length;
+            displayTip(currentTipIndex);
+            resetTimer();
+        }
+
+        function showPrevTip() {
+            currentTipIndex = (currentTipIndex - 1 + tips.length) % tips.length;
+            displayTip(currentTipIndex);
+            resetTimer();
+        }
+
+        function resetTimer() {
+            if (rotationTimer) clearInterval(rotationTimer);
+            rotationTimer = setInterval(showNextTip, 5000);
+        }
+
+        // Action button listeners
+        btnNext.addEventListener('click', showNextTip);
+        btnPrev.addEventListener('click', showPrevTip);
+
+        // Start initial timer
+        resetTimer();
+    });
+</script>
+{% endblock %}

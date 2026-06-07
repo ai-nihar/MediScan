@@ -1,73 +1,118 @@
 {% extends 'base.html' %}
 
-{% block title %}Diagnostic Result - MediScan{% endblock %}
+{% block title %}Diagnostic Report - MediScan AI{% endblock %}
+
+{% block page_title %}Diagnostic Scan Evaluation{% endblock %}
 
 {% block content %}
-<div class="result-container">
-    <div class="result-card">
-        <div class="result-header">
-            <h2>Diagnostic Results</h2>
-            <p>Model classification: <strong>{{ prediction.get_disease_type_display }}</strong></p>
-        </div>
-
-        <div class="result-grid">
-            <div class="scan-column">
-                <h3>Submitted Scan</h3>
-                <div class="image-wrapper">
-                    <img src="{{ prediction.image.url }}" alt="Submitted scan" class="scan-image">
-                </div>
-            </div>
-
-            <div class="metrics-column">
-                <h3>Analysis Output</h3>
-                
+<div class="container-fluid py-2">
+    <!-- HERO SECTION: Result Banner -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="glass-card result-hero-card text-center py-5">
                 {% if prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign" %}
-                <div class="status-banner status-safe">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    <div>
-                        <div class="status-title">Negative Detection</div>
-                        <div class="status-desc">Scan classified as: {{ prediction.result }}</div>
+                <div class="hero-indicator text-success mb-3">✓</div>
+                <h2 class="h3 text-success mb-2" style="font-family: 'Space Grotesk', sans-serif;">{{ prediction.get_disease_type_display }}: Negative Detection</h2>
+                <p class="text-secondary mb-4">No active pathology or malignancy detected. Scan outcome classified as: <strong>{{ prediction.result }}</strong></p>
+                
+                <div class="mx-auto" style="max-width: 500px;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-secondary small">Confidence Rating</span>
+                        <strong class="text-success small">{{ prediction.confidence }}%</strong>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar bg-success animate-progress-bar" style="width: {{ prediction.confidence }}%;"></div>
                     </div>
                 </div>
                 {% elif prediction.result == "Error" %}
-                <div class="status-banner status-error">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    <div>
-                        <div class="status-title">System Error</div>
-                        <div class="status-desc">Failed to complete network inference.</div>
-                    </div>
-                </div>
+                <div class="hero-indicator text-secondary mb-3">⚠</div>
+                <h2 class="h3 text-secondary mb-2" style="font-family: 'Space Grotesk', sans-serif;">Execution Diagnostics: Failed</h2>
+                <p class="text-secondary mb-4">System inference encountered an unexpected error.</p>
                 {% else %}
-                <div class="status-banner status-danger">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    <div>
-                        <div class="status-title">Positive Detection</div>
-                        <div class="status-desc">Scan classified as: {{ prediction.result }}</div>
+                <div class="hero-indicator text-danger mb-3">⚠</div>
+                <h2 class="h3 text-danger mb-2" style="font-family: 'Space Grotesk', sans-serif;">{{ prediction.get_disease_type_display }}: Positive Detection</h2>
+                <p class="text-secondary mb-4">Pathology indicators detected. Scan outcome classified as: <strong>{{ prediction.result }}</strong></p>
+                
+                <div class="mx-auto" style="max-width: 500px;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-secondary small">Pathology Confidence</span>
+                        <strong class="text-danger small">{{ prediction.confidence }}%</strong>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar bg-danger animate-progress-bar" style="width: {{ prediction.confidence }}%;"></div>
                     </div>
                 </div>
                 {% endif %}
+                <p class="text-secondary small mt-4 mb-0" style="opacity: 0.75;">This is an AI screening evaluation. Clinician verification is mandatory prior to treatment. See disclaimer below.</p>
+            </div>
+        </div>
+    </div>
 
-                <div class="metric-card">
-                    <div class="metric-info">
-                        <span class="metric-label">Model Confidence</span>
-                        <span class="metric-value">{{ prediction.confidence }}%</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: {{ prediction.confidence }}%;"></div>
-                    </div>
-                </div>
-
-                <div class="tips-card">
-                    <h4>Clinical Recommendations</h4>
-                    <div class="tips-content">
-                        {{ prediction.prevention_tips|linebreaks }}
-                    </div>
+    <!-- MIDDLE SECTION: Two Column Visuals -->
+    <div class="row g-4 mb-4">
+        <!-- Left: Uploaded Image -->
+        <div class="col-lg-6">
+            <div class="glass-card text-center d-flex flex-column align-items-center justify-content-center h-100 py-4">
+                <h3 class="h6 text-secondary text-uppercase mb-3 w-100 text-start" style="letter-spacing: 0.5px;">Analyzed Diagnostic Scan</h3>
+                <div class="scan-frame p-2">
+                    {% if prediction.image %}
+                    <img src="{{ prediction.image.url }}" alt="Analyzed Scan" class="scan-image-display">
+                    {% else %}
+                    <div class="no-scan-placeholder text-secondary">No Scan Image Available</div>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="card-footer-actions">
-            <a href="/" class="submit-btn" style="text-decoration: none; text-align: center; display: inline-block;">New Scan Analysis</a>
+        <!-- Right: AI Metric Gauge -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h3 class="h6 text-secondary text-uppercase mb-3" style="letter-spacing: 0.5px;">AI Confidence Analysis</h3>
+                    
+                    <div class="d-flex align-items-center gap-4 mb-4">
+                        <div class="confidence-gauge">
+                            <span class="gauge-value font-weight-bold {% if prediction.result == 'Normal' or prediction.result == 'No Diabetic Retinopathy' or prediction.result == 'Benign' %}text-success{% else %}text-danger{% endif %}">{{ prediction.confidence }}%</span>
+                        </div>
+                        <div>
+                            <h4 class="h6 text-primary mb-1">Diagnostic Score Breakdown</h4>
+                            <p class="small text-secondary m-0">The neural classifier computes class probabilities across activation maps. A score of <strong>{{ prediction.confidence }}%</strong> indicates target feature matching.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="model-meta-panel p-3">
+                    <h4 class="h6 text-info mb-1 uppercase">Model Infrastructure</h4>
+                    <p class="small text-secondary m-0">MobileNetV2 Deep CNN Backbone fine-tuned via PyTorch Transfer Learning. Parameters are optimized for binary classification of medical imagery with image scaling to 224x224.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM SECTION: Structured Management Guidelines -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="glass-card">
+                <h3 class="h5 text-primary mb-4" style="font-family: 'Space Grotesk', sans-serif;">Clinical Prevention & Management Guidelines</h3>
+                
+                <div class="row g-4" id="clinical-tips-row">
+                    <!-- Dynamic Recommendation Cards Injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER ACTIONS -->
+    <div class="row">
+        <div class="col d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex gap-3">
+                <a href="/" class="btn btn-outline-info" style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; border-radius: 6px; padding: 0.65rem 1.5rem;">Analyze Another Scan</a>
+                <a href="/history/" class="btn btn-outline-secondary" style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; border-radius: 6px; padding: 0.65rem 1.5rem;">View Diagnostic History</a>
+            </div>
+            
+            <div class="text-secondary small w-100 mt-2" style="border-top: 1px solid var(--border); padding-top: 1.5rem; opacity: 0.75;">
+                <strong>Medical Disclaimer:</strong> This diagnostic tool is powered by a machine learning model. It is intended solely for screening support and educational evaluation. The results generated by the model do not constitute formal medical diagnosis, prognosis, or therapeutic recommendation. Final clinical decisions must always be made by qualified medical clinicians in correlation with other laboratory and patient metrics.
+            </div>
         </div>
     </div>
 </div>
@@ -75,211 +120,227 @@
 
 {% block extra_css %}
 <style>
-    .result-container {
-        width: 100%;
-        max-width: 900px;
-        margin: 0 auto;
-        animation: fadeIn var(--transition-speed) ease-out;
+    /* Hero indicator */
+    .hero-indicator {
+        font-size: 3rem;
+        line-height: 1;
     }
-
-    .result-card {
-        background: var(--bg-secondary);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 2.5rem;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    
+    .result-hero-card {
+        background: rgba(13, 22, 48, 0.85) !important;
         position: relative;
-        overflow: hidden;
     }
 
-    .result-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    }
-
-    .result-header {
-        margin-bottom: 2rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding-bottom: 1rem;
-    }
-
-    .result-header h2 {
-        font-family: var(--font-heading);
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-
-    .result-header p {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-    }
-
-    .result-grid {
-        display: grid;
-        grid-template-columns: 1fr 1.2fr;
-        gap: 2.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .scan-column h3, .metrics-column h3 {
-        font-family: var(--font-heading);
-        font-size: 1.1rem;
-        font-weight: 550;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 1rem;
-    }
-
-    .image-wrapper {
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        background-color: rgba(10, 15, 30, 0.6);
-        padding: 0.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .scan-image {
-        max-width: 100%;
-        max-height: 350px;
-        border-radius: 6px;
-        object-fit: contain;
-    }
-
-    /* Status Banners */
-    .status-banner {
-        border-radius: 8px;
-        padding: 1.25rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    }
-
-    .status-safe {
-        background-color: rgba(6, 214, 160, 0.1);
-        border: 1px solid rgba(6, 214, 160, 0.25);
-        color: var(--success);
-    }
-
-    .status-danger {
-        background-color: rgba(255, 77, 109, 0.1);
-        border: 1px solid rgba(255, 77, 109, 0.25);
-        color: var(--danger);
-    }
-
-    .status-error {
-        background-color: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: var(--text-secondary);
-    }
-
-    .status-title {
-        font-weight: 650;
-        font-size: 1.05rem;
-        margin-bottom: 0.15rem;
-        font-family: var(--font-heading);
-    }
-
-    .status-desc {
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    /* Metric card */
-    .metric-card {
-        background-color: rgba(10, 15, 30, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .metric-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-
-    .metric-label {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-    }
-
-    .metric-value {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--accent);
-        font-family: var(--font-heading);
-        text-shadow: 0 0 10px var(--accent-glow);
-    }
-
+    /* Progress bar container */
     .progress-bar-container {
-        height: 6px;
-        background-color: rgba(255, 255, 255, 0.08);
-        border-radius: 3px;
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
         overflow: hidden;
+        border: 1px solid var(--border);
     }
 
     .progress-bar {
         height: 100%;
-        background-color: var(--accent);
-        border-radius: 3px;
-        box-shadow: 0 0 8px var(--accent);
+        border-radius: 4px;
+        width: 0%;
     }
 
-    /* Recommendations */
-    .tips-card {
-        background-color: rgba(10, 15, 30, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Animation keyframes */
+    @keyframes fillProgress {
+        from { width: 0%; }
+        to { width: {{ prediction.confidence }}%; }
+    }
+
+    .animate-progress-bar {
+        animation: fillProgress 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+    }
+
+    /* Scan Display Frame */
+    .scan-frame {
+        border: 1px solid var(--border);
+        background: rgba(7, 13, 26, 0.4);
         border-radius: 8px;
-        padding: 1.25rem;
-    }
-
-    .tips-card h4 {
-        font-family: var(--font-heading);
-        font-size: 1rem;
-        color: var(--text-primary);
-        margin-bottom: 0.75rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding-bottom: 0.5rem;
-    }
-
-    .tips-content p {
-        font-size: 0.88rem;
-        color: var(--text-secondary);
-        line-height: 1.6;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-footer-actions {
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        padding-top: 1.5rem;
-        margin-top: 1rem;
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
     }
 
-    @media (max-width: 768px) {
-        .result-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-        .result-card {
-            padding: 1.5rem;
-        }
+    .scan-image-display {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 6px;
+        object-fit: contain;
+    }
+
+    /* Gauge */
+    .confidence-gauge {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 3px solid var(--border);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.05);
+        background-color: rgba(7, 13, 26, 0.3);
+        flex-shrink: 0;
+    }
+
+    .gauge-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    /* Meta panel */
+    .model-meta-panel {
+        background: rgba(30, 58, 95, 0.1);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
+    /* Recommendation card checklist items */
+    .recommendation-list-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .recommendation-list-item .check-icon {
+        color: var(--accent-cyan);
+        font-weight: bold;
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Retrieve and parse formatting tips dynamically
+        const tipsText = `{{ prediction.prevention_tips|escapejs }}`;
+        const clinicalTipsRow = document.getElementById('clinical-tips-row');
+
+        function parseTips(text) {
+            const sections = {
+                severity: 'As advised by doctor',
+                immediate: [],
+                lifestyle: [],
+                medications: 'None prescribed',
+                followup: 'Consult a physician'
+            };
+
+            // Parse severity
+            const severityMatch = text.match(/Severity Level:\s*(.*)/i);
+            if (severityMatch) sections.severity = severityMatch[1].trim();
+
+            // Parse Immediate Steps
+            const immediateMatch = text.match(/Immediate Steps:\s*([\s\S]*?)(?=\n\n|\n[A-Z]|$)/i);
+            if (immediateMatch) {
+                sections.immediate = immediateMatch[1].split('\n')
+                    .map(line => line.replace(/^-\s*/, '').trim())
+                    .filter(line => line.length > 0);
+            }
+
+            // Parse Lifestyle Recommendations
+            const lifestyleMatch = text.match(/Lifestyle Recommendations:\s*([\s\S]*?)(?=\n\n|\n[A-Z]|$)/i);
+            if (lifestyleMatch) {
+                sections.lifestyle = lifestyleMatch[1].split('\n')
+                    .map(line => line.replace(/^-\s*/, '').trim())
+                    .filter(line => line.length > 0);
+            }
+
+            // Parse Medications
+            const medsMatch = text.match(/Medications:\s*([\s\S]*?)(?=\n\n|\n[A-Z]|$)/i);
+            if (medsMatch) {
+                sections.medications = medsMatch[1].replace(/^-\s*/, '').trim();
+            }
+
+            // Parse Follow-up
+            const followMatch = text.match(/Follow-up:\s*([\s\S]*?)(?=\n\n|\n[A-Z]|$)/i);
+            if (followMatch) {
+                sections.followup = followMatch[1].replace(/^-\s*/, '').trim();
+            }
+
+            return sections;
+        }
+
+        const sections = parseTips(tipsText);
+
+        // Build HTML panels for immediate steps, lifestyle, follow-up
+        let immediateHTML = "";
+        if (sections.immediate.length > 0) {
+            sections.immediate.forEach(item => {
+                immediateHTML += `
+                    <div class="recommendation-list-item">
+                        <span class="check-icon">✓</span>
+                        <span class="text-secondary">${item}</span>
+                    </div>
+                `;
+            });
+        } else {
+            immediateHTML = `<div class="text-secondary small italic">No immediate steps required.</div>`;
+        }
+
+        let lifestyleHTML = "";
+        if (sections.lifestyle.length > 0) {
+            sections.lifestyle.forEach(item => {
+                lifestyleHTML += `
+                    <div class="recommendation-list-item">
+                        <span class="check-icon">✓</span>
+                        <span class="text-secondary">${item}</span>
+                    </div>
+                `;
+            });
+        } else {
+            lifestyleHTML = `<div class="text-secondary small italic">Maintain standard lifestyle hygiene.</div>`;
+        }
+
+        clinicalTipsRow.innerHTML = `
+            <!-- Card 1: Immediate Steps (red/urgent) -->
+            <div class="col-lg-4">
+                <div class="glass-card h-100" style="border-top: 3px solid var(--accent-red);">
+                    <h4 class="h6 text-danger mb-3 text-uppercase" style="letter-spacing: 0.5px;">Immediate Steps</h4>
+                    <div class="mb-3 small text-secondary">
+                        <strong>Severity:</strong> <span class="text-primary">${sections.severity}</span>
+                    </div>
+                    <div class="recommendations-checklist">
+                        ${immediateHTML}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Lifestyle Recommendations (green) -->
+            <div class="col-lg-4">
+                <div class="glass-card h-100" style="border-top: 3px solid var(--accent-green);">
+                    <h4 class="h6 text-success mb-3 text-uppercase" style="letter-spacing: 0.5px;">Lifestyle Recommendations</h4>
+                    <div class="recommendations-checklist">
+                        ${lifestyleHTML}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Follow-Up & Medications (blue) -->
+            <div class="col-lg-4">
+                <div class="glass-card h-100" style="border-top: 3px solid var(--accent-cyan);">
+                    <h4 class="h6 text-info mb-3 text-uppercase" style="letter-spacing: 0.5px;">Follow-Up & Therapies</h4>
+                    
+                    <div class="mb-3">
+                        <strong class="small text-primary text-uppercase d-block mb-1">Medications Guide:</strong>
+                        <p class="small text-secondary m-0">${sections.medications}</p>
+                    </div>
+
+                    <div>
+                        <strong class="small text-primary text-uppercase d-block mb-1">Recommended Follow-up:</strong>
+                        <p class="small text-secondary m-0">${sections.followup}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+</script>
 {% endblock %}
