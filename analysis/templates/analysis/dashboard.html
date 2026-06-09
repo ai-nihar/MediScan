@@ -5,50 +5,57 @@
 {% block page_title %}EDA & Model Analytics{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-2">
-    <div class="row mb-4">
+<div class="container-fluid py-2" style="animation: fadeIn 0.25s ease forwards;">
+    <!-- Page Header -->
+    <div class="row mb-4 text-start">
         <div class="col">
-            <h2 class="h4 text-primary" style="font-family: 'Space Grotesk', sans-serif;">Exploratory Data Analysis & Model Metrics</h2>
-            <p class="text-secondary" style="font-family: 'Inter', sans-serif;">Analyze clinical dataset splits, model training progressions, and system logs.</p>
+            <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 600; color: var(--text-primary); margin: 0 0 0.25rem 0;">Analytics</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">Dataset statistics and your diagnostic history.</p>
         </div>
     </div>
 
-    <!-- Stats Cards Row -->
-    <div class="row g-4 mb-4">
+    <!-- Stats grid (3 cards, one per disease) -->
+    <div class="row g-4 mb-5">
         {% for stat in stats %}
         <div class="col-md-4">
-            <div class="glass-card h-100">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">{{ stat.get_disease_type_display }} Model</span>
-                    <span class="badge bg-info-subtle text-info border border-info-subtle">{{ stat.model_accuracy }}% Acc</span>
+            <div class="card p-3 h-100" style="background: var(--bg-secondary) !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-sm) !important; position: relative; overflow: hidden; text-align: left;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">{{ stat.get_disease_type_display }}</span>
+                    <span class="badge" style="background: var(--accent-light) !important; color: var(--accent) !important; border: 1px solid var(--accent-border) !important; border-radius: 4px; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem;">{{ stat.model_accuracy }}% Acc</span>
                 </div>
-                <div class="h2 mb-1 text-primary font-weight-bold">{{ stat.total_images }}</div>
-                <div class="small text-secondary mb-3">Total Annotated Images</div>
-                <div class="stat-details d-flex gap-3">
-                    <span class="stat-sub">{{ stat.positive_cases }} positive cases</span>
-                    <span class="stat-sub">{{ stat.negative_cases }} negative cases</span>
+                <div class="h2 mb-1" style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700; color: var(--text-primary);">{{ stat.total_images }}</div>
+                <div class="mb-3" style="color: var(--text-muted); font-size: 0.85rem;">annotated images</div>
+                <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; color: var(--text-secondary); font-size: 0.85rem;">
+                    {{ stat.positive_cases }} positive &middot; {{ stat.negative_cases }} negative
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <!-- Top Row Charts: Class Distribution (Bar) and Training History (Line) -->
+    <!-- Charts Section Label -->
+    <div class="row mb-3 text-start">
+        <div class="col">
+            <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0;">Dataset Distribution</h3>
+        </div>
+    </div>
+
+    <!-- Top Row Charts: Class Distribution and Training History -->
     <div class="row g-4 mb-4">
         <!-- 1. Bar Chart: Class Distribution -->
         <div class="col-lg-6">
-            <div class="glass-card h-100">
-                <h3 class="h6 mb-3 text-secondary text-uppercase" style="letter-spacing: 0.5px;">Class Distribution (Grouped)</h3>
+            <div class="card h-100" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 1.5rem; text-align: left;">
+                <h4 class="h6 mb-3 text-secondary text-uppercase" style="letter-spacing: 0.5px; font-size: 0.8rem; font-weight: 600;">Class Distribution (Grouped)</h4>
                 <div id="chart-class-dist" style="height: 350px; width: 100%;"></div>
             </div>
         </div>
 
-        <!-- 2. Line Chart: Training History with Dropdown Selector -->
+        <!-- 2. Line Chart: Training History -->
         <div class="col-lg-6">
-            <div class="glass-card h-100">
+            <div class="card h-100" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 1.5rem; text-align: left;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="h6 m-0 text-secondary text-uppercase" style="letter-spacing: 0.5px;">Model Training History</h3>
-                    <select id="disease-history-select" class="form-select form-select-sm border-secondary text-primary" style="width: 180px; background-color: var(--bg-primary); color: var(--text-primary);">
+                    <h4 class="h6 m-0 text-secondary text-uppercase" style="letter-spacing: 0.5px; font-size: 0.8rem; font-weight: 600;">Model Training History</h4>
+                    <select id="disease-history-select" class="form-select form-select-sm border-secondary text-primary" style="width: 180px; background-color: var(--bg-muted); color: var(--text-primary); border: 1px solid var(--border-color);">
                         <option value="pneumonia">Pneumonia</option>
                         <option value="retinopathy">Diabetic Retinopathy</option>
                         <option value="skin_cancer">Skin Cancer</option>
@@ -59,21 +66,70 @@
         </div>
     </div>
 
-    <!-- Bottom Row Charts: Radar Chart (Model Performance) and Pie Chart (Personal Diagnostics Breakdown) -->
-    <div class="row g-4">
+    <!-- Bottom Row Charts: Radar Chart and Pie Chart -->
+    <div class="row g-4 mb-5">
         <!-- 3. Radar Chart: Model Performance Metrics -->
         <div class="col-lg-6">
-            <div class="glass-card h-100">
-                <h3 class="h6 mb-3 text-secondary text-uppercase" style="letter-spacing: 0.5px;">Model Performance Comparison</h3>
+            <div class="card h-100" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 1.5rem; text-align: left;">
+                <h4 class="h6 mb-3 text-secondary text-uppercase" style="letter-spacing: 0.5px; font-size: 0.8rem; font-weight: 600;">Model Performance Comparison</h4>
                 <div id="chart-model-metrics" style="height: 350px; width: 100%;"></div>
             </div>
         </div>
 
         <!-- 4. Pie Chart: Clinician Diagnostic History -->
         <div class="col-lg-6">
-            <div class="glass-card h-100">
-                <h3 class="h6 mb-3 text-secondary text-uppercase" style="letter-spacing: 0.5px;">Your Diagnostic Breakdown</h3>
+            <div class="card h-100" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 1.5rem; text-align: left;">
+                <h4 class="h6 mb-3 text-secondary text-uppercase" style="letter-spacing: 0.5px; font-size: 0.8rem; font-weight: 600;">Your Diagnostic Breakdown</h4>
                 <div id="chart-personal-stats" style="height: 350px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Table Section -->
+    <div class="row mt-5 text-start">
+        <div class="col">
+            <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.5rem;">Your Scan History</h3>
+            <div class="card" style="background: var(--bg-secondary) !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-sm) !important; overflow: hidden; padding: 0 !important; border-bottom: none !important;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle m-0" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--bg-muted); color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 1rem 1.5rem; text-align: left; background: transparent;">Date & Time</th>
+                                <th style="padding: 1rem 1.5rem; text-align: left; background: transparent;">Analysis Category</th>
+                                <th style="padding: 1rem 1.5rem; text-align: left; background: transparent;">Result</th>
+                                <th style="padding: 1rem 1.5rem; text-align: left; background: transparent;">Confidence</th>
+                                <th style="padding: 1rem 1.5rem; text-align: right; background: transparent;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in history %}
+                            <tr style="border-bottom: 1px solid var(--border-subtle);">
+                                <td style="padding: 1rem 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                                <td style="padding: 1rem 1.5rem; color: var(--text-primary); font-weight: 500; font-size: 0.9rem;">{{ item.get_disease_type_display }}</td>
+                                <td style="padding: 1rem 1.5rem; font-size: 0.9rem;">
+                                    {% if item.result == "Normal" or item.result == "No Diabetic Retinopathy" or item.result == "Benign" %}
+                                    <span class="badge bg-success-subtle text-success">{{ item.result }}</span>
+                                    {% elif item.result == "Error" %}
+                                    <span class="badge bg-secondary-subtle text-secondary">Failed</span>
+                                    {% else %}
+                                    <span class="badge bg-danger-subtle text-danger">{{ item.result }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 1rem 1.5rem; color: var(--text-primary); font-size: 0.9rem; font-weight: 600;">{{ item.confidence }}%</td>
+                                <td style="padding: 1rem 1.5rem; text-align: right; font-size: 0.9rem;">
+                                    <a href="/result/{{ item.pk }}/" class="details-link" style="color: var(--accent); font-weight: 600; text-decoration: none; transition: var(--transition);">View Details</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 2.5rem;">
+                                    No diagnostic scans found. Go to the <a href="/" style="color: var(--accent); font-weight: 600;">Analyze Scan</a> page to run your first report.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -82,9 +138,8 @@
 
 {% block extra_css %}
 <style>
-    .stat-sub {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
+    .details-link:hover {
+        text-decoration: underline !important;
     }
 </style>
 {% endblock %}
@@ -152,7 +207,7 @@
             name: 'Train Accuracy',
             type: 'scatter',
             mode: 'lines+markers',
-            line: { color: '#00d4ff', width: 3 },
+            line: { color: '#0d9488', width: 3 },
             marker: { size: 6 }
         };
 
@@ -162,7 +217,7 @@
             name: 'Validation Accuracy',
             type: 'scatter',
             mode: 'lines+markers',
-            line: { color: '#00ff88', width: 3 },
+            line: { color: '#16a34a', width: 3 },
             marker: { size: 6 }
         };
 
@@ -181,9 +236,9 @@
         
         const data = Object.keys(modelMetrics).map(disease => {
             const metrics = modelMetrics[disease];
-            let color = '#00d4ff';
-            if (disease === 'retinopathy') color = '#00ff88';
-            if (disease === 'skin_cancer') color = '#ff4d6d';
+            let color = '#0d9488';
+            if (disease === 'retinopathy') color = '#16a34a';
+            if (disease === 'skin_cancer') color = '#dc2626';
             
             return {
                 type: 'scatterpolar',
@@ -229,7 +284,7 @@
             document.getElementById('chart-personal-stats').innerHTML = `
                 <div class="d-flex h-100 justify-content-center align-items-center flex-column text-center text-secondary">
                     <span style="font-size: 2.5rem;">📊</span>
-                    <p class="mt-2 mb-0">No scans run yet by your account.</p>
+                    <p class="mt-2 mb-0" style="color: var(--text-secondary);">No scans run yet by your account.</p>
                 </div>
             `;
             return;
@@ -241,7 +296,7 @@
             type: 'pie',
             hole: 0.4,
             marker: {
-                colors: ['#00d4ff', '#00ff88', '#ff4d6d']
+                colors: ['#0d9488', '#16a34a', '#dc2626']
             },
             textinfo: 'label+percent',
             textposition: 'inside',

@@ -67,5 +67,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # Non-serialized stats for simple django loops if needed
         context['stats'] = DatasetStats.objects.all()
+        context['history'] = Prediction.objects.filter(user=user).order_by('-created_at')[:10]
 
         return context
