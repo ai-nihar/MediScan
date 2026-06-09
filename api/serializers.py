@@ -18,9 +18,10 @@ class PredictionSerializer(serializers.ModelSerializer):
             'result',
             'confidence',
             'prevention_tips',
+            'processing_error',
             'created_at'
         ]
-        read_only_fields = ['id', 'user', 'result', 'confidence', 'prevention_tips', 'created_at']
+        read_only_fields = ['id', 'user', 'result', 'confidence', 'prevention_tips', 'processing_error', 'created_at']
 
     def get_user_name(self, obj):
         return obj.user.username

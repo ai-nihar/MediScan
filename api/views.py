@@ -81,9 +81,15 @@ class PredictionViewSet(viewsets.ModelViewSet):
             prediction.confidence = confidence
             prediction.prevention_tips = formatted_tips
             prediction.save()
+        except FileNotFoundError as e:
+            prediction.result = 'Error'
+            prediction.prevention_tips = 'Model file not found. Please ensure the trained model is present in ml_models/. Contact the administrator.'
+            prediction.processing_error = str(e)
+            prediction.save()
         except Exception as e:
             prediction.result = 'Error'
-            prediction.prevention_tips = f"Error during model processing: {str(e)}"
+            prediction.prevention_tips = 'An unexpected error occurred during analysis. Please try again.'
+            prediction.processing_error = str(e)
             prediction.save()
             
         # Serialize the updated prediction using the full PredictionSerializer

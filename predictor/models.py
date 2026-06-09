@@ -18,6 +18,7 @@ class Prediction(models.Model):
     result = models.CharField(max_length=100)
     confidence = models.FloatField()
     prevention_tips = models.TextField()
+    processing_error = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
