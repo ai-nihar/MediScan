@@ -3,49 +3,62 @@
 {% block title %}Register - MediScan{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h2>Create Account</h2>
-            <p>Register a new clinician profile</p>
+<div class="auth-container" style="max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 200px); animation: fadeIn 0.25s ease forwards;">
+    
+    <!-- Header: logo icon + "MediScan" text above the card (centered, links to /) -->
+    <a href="/" class="logo mb-4" style="font-family: var(--font-heading); font-size: 1.75rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+        <svg class="logo-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        Medi<span class="logo-highlight" style="color: var(--accent);">Scan</span>
+    </a>
+
+    <!-- Card -->
+    <div class="card w-100 p-4" style="background: var(--bg-secondary) !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-md) !important; text-align: left; overflow: hidden; backdrop-filter: none; -webkit-backdrop-filter: none;">
+        
+        <div class="auth-header mb-4" style="text-align: left;">
+            <h2 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Create account</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">Register a new clinician profile</p>
         </div>
         
-        <div id="error-alert" class="auth-alert" style="display: none;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <!-- Error alert -->
+        <div id="error-alert" class="auth-alert" style="display: none; background-color: var(--danger-light); border: 1px solid var(--danger-border); color: var(--danger); padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1.5rem; font-size: 0.85rem; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <span id="error-message"></span>
         </div>
 
-        <div id="success-alert" class="auth-alert-success" style="display: none;">
+        <!-- Success alert -->
+        <div id="success-alert" class="auth-alert-success" style="display: none; background-color: var(--success-light); border: 1px solid var(--success-border); color: var(--success); padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1.5rem; font-size: 0.85rem;">
             Account successfully created! Redirecting to login...
         </div>
 
         <form id="register-form">
             {% csrf_token %}
-            <div class="form-group">
-                <label for="username" class="form-label">Username</label>
+            <div class="form-group mb-3">
+                <label for="username" class="form-label" style="display: block; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">Username</label>
                 <input type="text" id="username" name="username" class="form-input" required autocomplete="username">
             </div>
             
-            <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
+            <div class="form-group mb-3">
+                <label for="email" class="form-label" style="display: block; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">Email Address</label>
                 <input type="email" id="email" name="email" class="form-input" required autocomplete="email">
             </div>
             
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
+            <div class="form-group mb-3">
+                <label for="password" class="form-label" style="display: block; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">Password</label>
                 <input type="password" id="password" name="password" class="form-input" required autocomplete="new-password">
             </div>
 
-            <div class="form-group">
-                <label for="password2" class="form-label">Confirm Password</label>
+            <div class="form-group mb-4">
+                <label for="password2" class="form-label" style="display: block; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">Confirm Password</label>
                 <input type="password" id="password2" name="password2" class="form-input" required autocomplete="new-password">
             </div>
             
-            <button type="submit" class="submit-btn" id="submit-btn">Register Account</button>
+            <button type="submit" class="submit-btn" id="submit-btn" style="width: 100%; background: var(--accent); color: var(--bg-secondary); border: none; border-radius: var(--radius); padding: 0.85rem; font-family: var(--font-body); font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition);">Create account</button>
         </form>
         
-        <div class="auth-footer">
-            Already have an account? <a href="/accounts/login/">Login here</a>
+        <div class="auth-footer mt-4" style="text-align: center; font-size: 0.9rem; color: var(--text-secondary);">
+            Already have an account? <a href="/accounts/login/" style="color: var(--accent); font-weight: 500; text-decoration: none; transition: var(--transition);">Sign in &rarr;</a>
         </div>
     </div>
 </div>
@@ -88,7 +101,7 @@
             if (password !== password2) {
                 errorMessage.textContent = 'Passwords do not match.';
                 errorAlert.style.display = 'flex';
-                submitBtn.textContent = 'Register Account';
+                submitBtn.textContent = 'Create account';
                 submitBtn.disabled = false;
                 return;
             }
@@ -128,14 +141,14 @@
                     }
                     errorMessage.textContent = errorText;
                     errorAlert.style.display = 'flex';
-                    submitBtn.textContent = 'Register Account';
+                    submitBtn.textContent = 'Create account';
                     submitBtn.disabled = false;
                 }
             } catch (err) {
                 console.error(err);
                 errorMessage.textContent = 'A connection error occurred. Please try again.';
                 errorAlert.style.display = 'flex';
-                submitBtn.textContent = 'Register Account';
+                submitBtn.textContent = 'Create account';
                 submitBtn.disabled = false;
             }
         });
