@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Upload Scan - MediScan AI{% endblock %}
+{% block title %}Upload Scan — MediScan{% endblock %}
 
 {% block page_title %}Upload Diagnostic Scan{% endblock %}
 
@@ -309,6 +309,28 @@
             display: none !important;
         }
     }
+
+    /* Loading State Styles */
+    .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    .loading-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+    .loading-state p { margin-bottom: 0.25rem; }
+    .loading-state .loading-sub { color: var(--text-muted); font-size: 0.8rem; }
 </style>
 {% endblock %}
 
@@ -443,9 +465,13 @@
                 return;
             }
             
-            submitBtn.disabled = true;
-            btnText.innerText = "Analyzing scan...";
-            spinner.style.display = "inline-block";
+            form.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Running analysis…</p>
+                    <p class="loading-sub">This may take a few seconds.</p>
+                </div>
+            `;
         });
     });
 </script>

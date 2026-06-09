@@ -8,7 +8,7 @@ from .eda import (
     get_training_history,
     get_prediction_stats
 )
-from predictor.models import DatasetStats
+from predictor.models import DatasetStats, Prediction
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     """
@@ -67,6 +67,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # Non-serialized stats for simple django loops if needed
         context['stats'] = DatasetStats.objects.all()
-        context['history'] = Prediction.objects.filter(user=user).order_by('-created_at')[:10]
+        history = Prediction.objects.filter(user=user).order_by('-created_at')
+        context['history_count'] = history.count()
+        context['history'] = history[:10]
 
         return context

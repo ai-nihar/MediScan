@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MediScan — AI-assisted medical image screening for pneumonia, diabetic retinopathy, and skin cancer. For research and educational use only.">
+    <meta property="og:title" content="MediScan — AI Diagnostic Screening">
+    <meta property="og:description" content="AI-assisted medical image screening tool.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔬</text></svg>">
     <title>{% block title %}MediScan AI - Advanced Clinical Diagnostics{% endblock %}</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +39,6 @@
                 <a href="/" class="nav-link" id="nav-predict">Analyze Scan</a>
                 <a href="/history/" class="nav-link" id="nav-history">Scan History</a>
                 <a href="/analysis/dashboard/" class="nav-link" id="nav-analytics">EDA Analytics</a>
-                <a href="/api/" class="nav-link" id="nav-apidocs">API Portal</a>
             </nav>
             
             <div id="auth-links" class="nav-auth">
@@ -50,7 +54,7 @@
     
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2026 MediScan AI Platform. Secure Clinician Portal. For Clinical Research and Screening Purposes Only.</p>
+        <p>&copy; 2026 MediScan · AI-assisted medical image screening · For research and educational use only.</p>
     </footer>
 
     <!-- Bootstrap Bundle with Popper -->
@@ -189,8 +193,6 @@
                 document.getElementById('nav-history')?.classList.add('active');
             } else if (path.includes('/analysis/')) {
                 document.getElementById('nav-analytics')?.classList.add('active');
-            } else if (path.includes('/api/')) {
-                document.getElementById('nav-apidocs')?.classList.add('active');
             } else if (path.includes('/profile/')) {
                 document.getElementById('nav-profile')?.classList.add('active');
             }

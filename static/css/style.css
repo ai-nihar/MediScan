@@ -521,3 +521,54 @@ a {
 .fade-in {
     animation: fadeIn 0.25s ease forwards;
 }
+
+/* --- Responsive Audit Styles --- */
+
+/* 1. Navbar on mobile (< 640px) */
+@media (max-width: 639.98px) {
+    .nav-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+    }
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem 1.25rem;
+    }
+    .nav-auth {
+        border-left: none;
+        padding-left: 0;
+        gap: 0.75rem;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Hide welcome text on very small screens (< 480px) */
+@media (max-width: 480px) {
+    .welcome-text {
+        display: none !important;
+    }
+}
+
+/* 2. Upload page on mobile (< 992px) */
+@media (max-width: 991.98px) {
+    .sidebar-info {
+        margin-bottom: 1.5rem;
+    }
+    .sidebar-info .feature-rows,
+    .sidebar-info .disclaimer {
+        display: none !important;
+    }
+}
+
+/* 5. Reduce card padding on mobile (< 768px) */
+@media (max-width: 767.98px) {
+    .auth-card,
+    .glass-card,
+    .card {
+        padding: 1.25rem !important;
+    }
+}

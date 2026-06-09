@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}EDA Analytics - MediScan AI{% endblock %}
+{% block title %}Analytics — MediScan{% endblock %}
 
 {% block page_title %}EDA & Model Analytics{% endblock %}
 
@@ -88,7 +88,14 @@
     <!-- History Table Section -->
     <div class="row mt-5 text-start">
         <div class="col">
-            <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.5rem;">Your Scan History</h3>
+            <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Your Scan History</h3>
+            <p class="history-note">
+                {% if history_count > 10 %}
+                Showing 10 of {{ history_count }} scans.
+                {% else %}
+                Showing your last 10 scans.
+                {% endif %}
+            </p>
             <div class="card" style="background: var(--bg-secondary) !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-sm) !important; overflow: hidden; padding: 0 !important; border-bottom: none !important;">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle m-0" style="width: 100%; border-collapse: collapse;">
@@ -123,7 +130,7 @@
                             {% empty %}
                             <tr>
                                 <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 2.5rem;">
-                                    No diagnostic scans found. Go to the <a href="/" style="color: var(--accent); font-weight: 600;">Analyze Scan</a> page to run your first report.
+                                    No scans yet. Upload your first image on the Predictor page.
                                 </td>
                             </tr>
                             {% endfor %}
@@ -140,6 +147,11 @@
 <style>
     .details-link:hover {
         text-decoration: underline !important;
+    }
+    .history-note {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
     }
 </style>
 {% endblock %}
