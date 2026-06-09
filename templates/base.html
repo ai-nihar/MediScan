@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,365 +8,50 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Custom CSS Variables & Style -->
-    <style>
-        :root {
-            --bg-primary: #070d1a;
-            --bg-secondary: #0d1630;
-            --bg-card: #111d3a;
-            --accent-cyan: #00d4ff;
-            --accent-green: #00ff88;
-            --accent-red: #ff4d6d;
-            --text-primary: #e8f4fd;
-            --text-secondary: #7b9bc7;
-            --border: #1e3a5f;
-            --sidebar-width: 260px;
-            --header-height: 70px;
-            --transition-speed: 0.2s;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                linear-gradient(rgba(30, 58, 95, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(30, 58, 95, 0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-cyan);
-            box-shadow: 0 0 8px var(--accent-cyan);
-        }
-        
-        /* Sidebar Navigation */
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            background-color: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            padding: 1.5rem 1rem;
-        }
-        
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            color: var(--text-primary);
-            margin-bottom: 2.5rem;
-            padding-left: 0.5rem;
-        }
-        
-        .brand-logo-icon {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid var(--accent-cyan);
-            color: var(--accent-cyan);
-            font-weight: bold;
-            font-size: 1.25rem;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.25);
-        }
-        
-        .brand-text {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.25rem;
-            letter-spacing: 0.5px;
-        }
-        
-        .brand-highlight {
-            color: var(--accent-cyan);
-            text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
-        }
-        
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            flex-grow: 1;
-        }
-        
-        .nav-item-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all var(--transition-speed) ease;
-            border: 1px solid transparent;
-        }
-        
-        .nav-item-link:hover, .nav-item-link.active {
-            color: var(--accent-cyan);
-            background: rgba(0, 212, 255, 0.05);
-            border-color: rgba(0, 212, 255, 0.15);
-            box-shadow: 0 0 12px rgba(0, 212, 255, 0.08);
-            text-shadow: 0 0 5px rgba(0, 212, 255, 0.25);
-        }
-        
-        .nav-item-link i, .nav-item-link span.icon {
-            font-size: 1.1rem;
-            transition: transform var(--transition-speed) ease;
-        }
-        
-        .nav-item-link:hover i, .nav-item-link:hover span.icon {
-            transform: scale(1.15);
-        }
-        
-        /* Fixed Header */
-        .header-topbar {
-            height: var(--header-height);
-            background-color: rgba(7, 13, 26, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            position: fixed;
-            top: 0;
-            left: var(--sidebar-width);
-            right: 0;
-            z-index: 999;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
-        
-        .page-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.35rem;
-            color: var(--text-primary);
-            margin: 0;
-        }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-        }
-        
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .avatar-circle {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--border));
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--bg-primary);
-            font-weight: 600;
-            font-family: 'Space Grotesk', sans-serif;
-            border: 2px solid var(--border);
-            box-shadow: 0 0 8px rgba(0, 212, 255, 0.15);
-        }
-        
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .profile-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-        
-        .profile-role {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-        
-        .logout-btn-header {
-            color: var(--accent-red);
-            background: transparent;
-            border: 1px solid rgba(255, 77, 109, 0.2);
-            border-radius: 6px;
-            padding: 0.35rem 0.85rem;
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all var(--transition-speed) ease;
-        }
-        
-        .logout-btn-header:hover {
-            background: rgba(255, 77, 109, 0.1);
-            border-color: var(--accent-red);
-            box-shadow: 0 0 10px rgba(255, 77, 109, 0.2);
-        }
-        
-        /* Main Content wrapper */
-        .main-wrapper {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 2.5rem;
-            min-height: calc(100vh - var(--header-height));
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .content-area {
-            flex-grow: 1;
-        }
-        
-        /* Glassmorphism Cards */
-        .glass-card {
-            background: rgba(17, 29, 58, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-        }
-        
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-            opacity: 0.5;
-        }
-        
-        .glass-card:hover {
-            border-color: rgba(0, 212, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(0, 212, 255, 0.05);
-        }
-        
-        /* Footer */
-        .main-footer {
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-            margin-top: 3rem;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-        }
-        
-        /* Labels & text overrides */
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-        }
-        
-        .mono-text {
-            font-family: 'JetBrains Mono', monospace;
-        }
-    </style>
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <a href="/" class="sidebar-brand">
-            <div class="brand-logo-icon">✚</div>
-            <div class="brand-text">Medi<span class="brand-highlight">Scan AI</span></div>
-        </a>
-        
-        <nav class="nav-menu">
-            <a href="/dashboard/" class="nav-item-link" id="nav-dashboard">
-                <span class="icon">📊</span>
-                Dashboard
-            </a>
-            <a href="/" class="nav-item-link" id="nav-predict">
-                <span class="icon">🔍</span>
-                Analyze Scan
-            </a>
-            <a href="/history/" class="nav-item-link" id="nav-history">
-                <span class="icon">📜</span>
-                Scan History
-            </a>
-            <a href="/analysis/dashboard/" class="nav-item-link" id="nav-analytics">
-                <span class="icon">📈</span>
-                EDA Analytics
-            </a>
-            <a href="/api/" class="nav-item-link" id="nav-apidocs">
-                <span class="icon">🔌</span>
-                API Portal
-            </a>
-            <a href="/accounts/profile/" class="nav-item-link" id="nav-profile">
-                <span class="icon">👤</span>
-                Clinician Profile
-            </a>
-        </nav>
-    </aside>
-
     <!-- Top Navigation Header -->
-    <header class="header-topbar">
-        <h1 class="page-title">{% block page_title %}Clinical Diagnostics Console{% endblock %}</h1>
-        
-        <div class="header-right">
-            <div id="auth-header-info" class="user-profile">
-                <!-- Dynamic profile text populated by JS -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <svg class="logo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Medi<span class="logo-highlight">Scan</span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="/dashboard/" class="nav-link" id="nav-dashboard">Dashboard</a>
+                <a href="/" class="nav-link" id="nav-predict">Analyze Scan</a>
+                <a href="/history/" class="nav-link" id="nav-history">Scan History</a>
+                <a href="/analysis/dashboard/" class="nav-link" id="nav-analytics">EDA Analytics</a>
+                <a href="/api/" class="nav-link" id="nav-apidocs">API Portal</a>
+            </nav>
+            
+            <div id="auth-links" class="nav-auth">
+                <!-- Dynamic auth links injected via JavaScript -->
             </div>
         </div>
     </header>
 
     <!-- Main Content Area -->
-    <div class="main-wrapper">
-        <main class="content-area">
-            {% block content %}{% endblock %}
-        </main>
-        
-        <footer class="main-footer">
-            <p>&copy; 2026 MediScan AI Platform. Secure Clinician Portal. For Clinical Research and Screening Purposes Only.</p>
-        </footer>
-    </div>
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 MediScan AI Platform. Secure Clinician Portal. For Clinical Research and Screening Purposes Only.</p>
+    </footer>
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -438,20 +124,16 @@
 
         const updateNavbar = () => {
             const user = getUserData();
-            const authInfoDiv = document.getElementById('auth-header-info');
+            const authLinksDiv = document.getElementById('auth-links');
             
             if (user && getAccessToken()) {
-                const initial = user.username ? user.username.charAt(0).toUpperCase() : 'U';
-                authInfoDiv.innerHTML = `
-                    <div class="avatar-circle">${initial}</div>
-                    <div class="profile-info me-3">
-                        <span class="profile-name">${user.username}</span>
-                        <span class="profile-role">Medical Clinician</span>
-                    </div>
-                    <a href="#" class="logout-btn-header" id="header-logout-btn">Logout</a>
+                authLinksDiv.innerHTML = `
+                    <span class="welcome-text">Welcome, <strong>${user.username}</strong></span>
+                    <a href="/accounts/profile/" class="nav-link" id="nav-profile">Profile</a>
+                    <a href="#" class="nav-link logout-btn" id="logout-btn">Logout</a>
                 `;
                 
-                document.getElementById('header-logout-btn').addEventListener('click', async (e) => {
+                document.getElementById('logout-btn').addEventListener('click', async (e) => {
                     e.preventDefault();
                     const refresh = getRefreshToken();
                     const access = getAccessToken();
@@ -473,9 +155,9 @@
                     window.location.href = '/accounts/login/';
                 });
             } else {
-                authInfoDiv.innerHTML = `
-                    <a href="/accounts/login/" class="nav-item-link" style="border: 1px solid var(--accent-cyan); padding: 0.35rem 1rem;">Login</a>
-                    <a href="/accounts/register/" class="nav-item-link" style="background: var(--accent-cyan); color: var(--bg-primary); padding: 0.35rem 1rem;">Register</a>
+                authLinksDiv.innerHTML = `
+                    <a href="/accounts/login/" class="nav-link login-btn">Login</a>
+                    <a href="/accounts/register/" class="nav-link register-btn">Register</a>
                 `;
             }
         };
@@ -495,7 +177,7 @@
             
             // Highlight active navigation items based on current URL path
             const path = window.location.pathname;
-            document.querySelectorAll('.nav-item-link').forEach(link => {
+            document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
             

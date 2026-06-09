@@ -105,12 +105,12 @@
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: {
-            family: 'Inter, sans-serif',
-            color: '#7b9bc7'
+            family: 'DM Sans, sans-serif',
+            color: '#6b7280'
         },
         margin: { l: 40, r: 40, t: 40, b: 40 },
         legend: {
-            font: { color: '#e8f4fd' }
+            font: { color: '#111827' }
         }
     };
 
@@ -135,8 +135,8 @@
         const layout = {
             ...plotlyLayoutDefaults,
             barmode: 'group',
-            xaxis: { gridcolor: '#1e3a5f', color: '#e8f4fd' },
-            yaxis: { gridcolor: '#1e3a5f', color: '#e8f4fd' }
+            xaxis: { gridcolor: '#e2e5ea', color: '#111827' },
+            yaxis: { gridcolor: '#e2e5ea', color: '#111827' }
         };
 
         Plotly.newPlot('chart-class-dist', [negativeTrace, positiveTrace], layout, {responsive: true});
@@ -168,8 +168,8 @@
 
         const layout = {
             ...plotlyLayoutDefaults,
-            xaxis: { title: 'Epochs', gridcolor: '#1e3a5f', color: '#e8f4fd' },
-            yaxis: { title: 'Accuracy (%)', gridcolor: '#1e3a5f', color: '#e8f4fd', range: [0, 105] }
+            xaxis: { title: 'Epochs', gridcolor: '#e2e5ea', color: '#111827' },
+            yaxis: { title: 'Accuracy (%)', gridcolor: '#e2e5ea', color: '#111827', range: [0, 105] }
         };
 
         Plotly.newPlot('chart-training-history', [trainAccTrace, valAccTrace], layout, {responsive: true});
@@ -206,14 +206,14 @@
                 radialaxis: {
                     visible: true,
                     range: [0, 100],
-                    color: '#7b9bc7',
-                    gridcolor: '#1e3a5f'
+                    color: '#6b7280',
+                    gridcolor: '#e2e5ea'
                 },
                 angularaxis: {
-                    color: '#e8f4fd',
-                    gridcolor: '#1e3a5f'
+                    color: '#111827',
+                    gridcolor: '#e2e5ea'
                 },
-                bgcolor: 'rgba(7, 13, 26, 0.4)'
+                bgcolor: 'rgba(240, 242, 245, 0.4)'
             }
         };
 
