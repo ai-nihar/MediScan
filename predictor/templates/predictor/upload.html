@@ -465,13 +465,28 @@
                 return;
             }
             
-            form.innerHTML = `
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Running analysis…</p>
-                    <p class="loading-sub">This may take a few seconds.</p>
-                </div>
+            // Hide the visible child elements of the form to keep inputs in the DOM for submission
+            Array.from(form.children).forEach(child => {
+                if (child.tagName !== 'INPUT') {
+                    child.style.display = 'none';
+                }
+            });
+            
+            // Hide the card header "Upload Scan" if present
+            const cardHeader = form.previousElementSibling;
+            if (cardHeader && cardHeader.tagName === 'H2') {
+                cardHeader.style.display = 'none';
+            }
+            
+            // Append the loading state to the form
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-state';
+            loadingDiv.innerHTML = `
+                <div class="spinner"></div>
+                <p>Running analysis…</p>
+                <p class="loading-sub">This may take a few seconds.</p>
             `;
+            form.appendChild(loadingDiv);
         });
     });
 </script>
