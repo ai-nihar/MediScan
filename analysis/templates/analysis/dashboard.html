@@ -13,6 +13,26 @@
         </div>
     </div>
 
+    <!-- Stats Cards Row -->
+    <div class="row g-4 mb-4">
+        {% for stat in stats %}
+        <div class="col-md-4">
+            <div class="glass-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">{{ stat.get_disease_type_display }} Model</span>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle">{{ stat.model_accuracy }}% Acc</span>
+                </div>
+                <div class="h2 mb-1 text-primary font-weight-bold">{{ stat.total_images }}</div>
+                <div class="small text-secondary mb-3">Total Annotated Images</div>
+                <div class="stat-details d-flex gap-3">
+                    <span class="stat-sub">{{ stat.positive_cases }} positive cases</span>
+                    <span class="stat-sub">{{ stat.negative_cases }} negative cases</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
     <!-- Top Row Charts: Class Distribution (Bar) and Training History (Line) -->
     <div class="row g-4 mb-4">
         <!-- 1. Bar Chart: Class Distribution -->
@@ -58,6 +78,15 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-sub {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
