@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - MediScan AI{% endblock %}
+
+{% block page_title %}Clinician Profile{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 550px; margin: 0 auto;">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Your Profile</h2>
+            <p>Medical Clinician Account Details</p>
+        </div>
+
+        <div class="profile-details-body">
+            <!-- Username row -->
+            <div class="form-group mb-4">
+                <span class="form-label">Username</span>
+                <div class="mono-text" style="color: var(--text-primary); font-size: 1.1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                    {{ request.user.username }}
+                </div>
+            </div>
+
+            <!-- Email row -->
+            <div class="form-group mb-4">
+                <span class="form-label">Email Address</span>
+                <div style="color: var(--text-primary); font-size: 1.1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                    {{ request.user.email }}
+                </div>
+            </div>
+
+            <!-- Bio row -->
+            <div class="form-group mb-4">
+                <span class="form-label">Biography</span>
+                <div style="color: var(--text-primary); font-size: 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); min-height: 40px; white-space: pre-wrap;">
+                    {% if request.user.bio %}{{ request.user.bio }}{% else %}<span class="text-secondary font-italic" style="opacity: 0.7;">No biography provided.</span>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-footer mt-4" style="border-top: 1px solid var(--border); padding-top: 1.25rem;">
+            <p class="small text-secondary m-0">Profile editing coming soon.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

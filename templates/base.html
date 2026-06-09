@@ -393,7 +393,50 @@
             document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Strict";
         };
 
-        const updateTopbar = () => {
+        const refreshAccessToken = async () => {
+            const refresh = getRefreshToken();
+            if (!refresh) return false;
+            try {
+                const response = await fetch('/api/token/refresh/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh: refresh })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = getUserData();
+                    setTokens(data.access, refresh, user);
+                    return true;
+                }
+            } catch (err) {
+                console.error('Silent token refresh failed:', err);
+            }
+            return false;
+        };
+
+        const authenticatedFetch = async (url, options = {}) => {
+            let token = getAccessToken();
+            if (!options.headers) options.headers = {};
+            if (token) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            let response = await fetch(url, options);
+            if (response.status === 401 || response.status === 403) {
+                const refreshed = await refreshAccessToken();
+                if (refreshed) {
+                    token = getAccessToken();
+                    options.headers['Authorization'] = `Bearer ${token}`;
+                    response = await fetch(url, options);
+                } else {
+                    clearTokens();
+                    window.location.href = '/accounts/login/';
+                }
+            }
+            return response;
+        };
+
+        const updateNavbar = () => {
             const user = getUserData();
             const authInfoDiv = document.getElementById('auth-header-info');
             
@@ -440,11 +483,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Synchronize client-side token state with server-side session state
             const serverIsAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
-            if (!serverIsAuthenticated && getAccessToken()) {
-                clearTokens();
+            
+            // Add a silent token refresh attempt. If getAccessToken() exists but the Django session may have expired,
+            // we do NOT add aggressive checks. We attempt to silently refresh the token, and only redirect
+            // when a protected resource returns a 403 or redirect.
+            if (getAccessToken() && !serverIsAuthenticated) {
+                refreshAccessToken().catch(err => console.error('Silent token refresh failed:', err));
             }
 
-            updateTopbar();
+            updateNavbar();
             
             // Highlight active navigation items based on current URL path
             const path = window.location.pathname;

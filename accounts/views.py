@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -79,3 +80,12 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         """Return the authenticated user's profile."""
         return self.request.user
+
+
+@login_required(login_url='/accounts/login/')
+def profile_view(request):
+    """
+    Renders the clinician's profile page.
+    """
+    return render(request, 'accounts/profile.html')
+

@@ -3,9 +3,10 @@ import json
 import pandas as pd
 import plotly.express as px
 import plotly.offline as opy
+from django.conf import settings
 from predictor.models import Prediction
 
-base_dir = r"C:\Study\PN\python medical project\mediscan\datasets"
+base_dir = os.path.join(settings.BASE_DIR, "datasets")
 
 def get_pneumonia_chart():
     """Generate bar chart for Pneumonia Chest X-Ray class splits."""

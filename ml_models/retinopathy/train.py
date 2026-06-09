@@ -23,7 +23,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
 # Paths
-base_dir = r"C:\Study\PN\python medical project\mediscan"
+base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "")
 csv_path = os.path.join(base_dir, "datasets", "retinopathy", "train.csv")
 images_dir = os.path.join(base_dir, "datasets", "retinopathy", "train_images")
 model_save_dir = os.path.join(base_dir, "ml_models", "retinopathy")

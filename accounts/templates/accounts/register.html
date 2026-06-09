@@ -54,9 +54,15 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // If already logged in, redirect to home
+        // If already logged in, redirect to home. Only redirect if the server-side session is also authenticated
+        // to prevent redirect loops when the session is expired.
+        const serverIsAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
         if (getAccessToken()) {
-            window.location.href = '/';
+            if (serverIsAuthenticated) {
+                window.location.href = '/';
+            } else {
+                clearTokens();
+            }
         }
 
         const registerForm = document.getElementById('register-form');
