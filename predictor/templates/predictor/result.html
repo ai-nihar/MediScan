@@ -123,6 +123,13 @@
         <div class="d-flex gap-3 justify-content-start align-items-center mt-2 pt-4" style="border-top: 1px solid var(--border-color);">
             <a href="/" class="btn" style="background-color: var(--accent) !important; color: var(--bg-secondary) !important; border: none !important; font-family: var(--font-heading); font-weight: 600; border-radius: var(--radius); padding: 0.65rem 1.75rem; transition: var(--transition);">Analyse Another Scan</a>
             <a href="/history/" class="btn btn-outline-secondary">View Diagnostic History</a>
+            <button onclick="window.print()" class="btn btn-outline-info d-flex align-items-center gap-2" style="font-family: var(--font-heading); font-weight: 600; border-radius: var(--radius); padding: 0.65rem 1.5rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Export PDF Report
+            </button>
         </div>
 
     </div>
@@ -156,7 +163,108 @@
         color: var(--accent);
         font-weight: 700;
     }
+
+    /* Professional Media Print Styling */
+    @media print {
+        body {
+            background: #ffffff !important;
+            color: #111827 !important;
+            font-size: 11pt !important;
+        }
+        
+        /* Hide navbar, buttons, footers, breadcrumbs */
+        .navbar, .footer, .btn, button, #nav-profile, #logout-btn, .mb-3.text-start, .d-flex.gap-3.justify-content-start.align-items-center {
+            display: none !important;
+        }
+        
+        .main-content {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        .container-fluid {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: transparent !important;
+        }
+
+        /* Hospital Report Title Letterhead */
+        .card::before {
+            content: "MEDISCAN CLINICAL DIAGNOSTIC REPORT";
+            display: block;
+            text-align: center;
+            font-family: var(--font-heading);
+            font-size: 18pt;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #111827;
+            padding-bottom: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Clinician Approval Section */
+        .card::after {
+            content: "Attending Clinician Approval Signature: ___________________________                  Date: _________________";
+            display: block;
+            margin-top: 3.5rem;
+            font-size: 10pt;
+            font-weight: 600;
+            color: #374151;
+            border-top: 1px dashed #d1d5db;
+            padding-top: 1.5rem;
+        }
+
+        /* Re-format grid layout for paper sizing */
+        .row {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            gap: 1.5rem !important;
+        }
+
+        .col-md-6 {
+            width: 50% !important;
+            flex: 0 0 50% !important;
+            max-width: 50% !important;
+        }
+
+        .col-md-4 {
+            width: 33.333% !important;
+            flex: 0 0 33.333% !important;
+            max-width: 33.333% !important;
+        }
+
+        .scan-frame {
+            height: 280px !important;
+            padding: 0.5rem !important;
+            background-color: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        .p-3 {
+            background-color: #f9fafb !important;
+            border: 1px solid #e5e7eb !important;
+        }
+
+        /* Force color matching on print */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
 </style>
+
 {% endblock %}
 
 {% block extra_js %}
