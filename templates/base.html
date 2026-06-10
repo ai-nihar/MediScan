@@ -55,6 +55,8 @@
                 </div>
             </div>
         </div>
+        <!-- Progress Bar just below navbar -->
+        <div id="top-loading-bar"></div>
     </header>
 
     <!-- Main Content Area -->
@@ -71,7 +73,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Authentication and State JS -->
-    <script>
+    <script id="base-scripts" data-base="true">
         const getAccessToken = () => localStorage.getItem('access_token');
         const getRefreshToken = () => localStorage.getItem('refresh_token');
         const getUserData = () => {
@@ -188,6 +190,9 @@
 
 
         document.addEventListener('DOMContentLoaded', () => {
+            if (window.baseScriptInitialized) return;
+            window.baseScriptInitialized = true;
+
             // Synchronize client-side token state with server-side session state
             const serverIsAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
             
@@ -213,7 +218,7 @@
 
             updateNavbar();
 
-            // Hamburger toggle logic
+            // Hamburger toggle logic (run only once globally)
             const navToggle = document.getElementById('nav-toggle');
             const navCollapse = document.getElementById('nav-collapse');
             
@@ -234,22 +239,271 @@
             }
             
             // Highlight active navigation items based on current URL path
-            const path = window.location.pathname;
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            if (path === '/') {
-                document.getElementById('nav-predict')?.classList.add('active');
-            } else if (path === '/dashboard/') {
-                document.getElementById('nav-dashboard')?.classList.add('active');
-            } else if (path === '/history/') {
-                document.getElementById('nav-history')?.classList.add('active');
-            } else if (path.includes('/analysis/')) {
-                document.getElementById('nav-analytics')?.classList.add('active');
-            } else if (path.includes('/profile/')) {
-                document.getElementById('nav-profile')?.classList.add('active');
+            function highlightActiveTab(path) {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                if (path === '/') {
+                    document.getElementById('nav-predict')?.classList.add('active');
+                } else if (path === '/dashboard/') {
+                    document.getElementById('nav-dashboard')?.classList.add('active');
+                } else if (path === '/history/') {
+                    document.getElementById('nav-history')?.classList.add('active');
+                } else if (path.includes('/analysis/')) {
+                    document.getElementById('nav-analytics')?.classList.add('active');
+                } else if (path.includes('/profile/')) {
+                    document.getElementById('nav-profile')?.classList.add('active');
+                }
             }
+
+            const initialPath = window.location.pathname;
+            highlightActiveTab(initialPath);
+
+            // SPA Transition Router & Skeletons Definition
+            const mainContent = document.querySelector('.main-content');
+            const topBar = document.getElementById('top-loading-bar');
+            
+            const skeletons = {
+                predict: `
+                    <div class="container-fluid py-2 skeleton-screen" style="animation: fadeIn 0.25s ease forwards;">
+                        <div class="row g-5 align-items-stretch">
+                            <div class="col-lg-5"><div class="skeleton-placeholder" style="width: 100%; height: 350px; border-radius: var(--radius-lg);"></div></div>
+                            <div class="col-lg-7"><div class="skeleton-placeholder" style="width: 100%; height: 450px; border-radius: var(--radius-lg);"></div></div>
+                        </div>
+                    </div>
+                `,
+                dashboard: `
+                    <div class="container-fluid py-2 skeleton-screen" style="animation: fadeIn 0.25s ease forwards;">
+                        <div class="skeleton-placeholder mb-4" style="width: 200px; height: 32px; border-radius: 4px;"></div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4"><div class="skeleton-placeholder" style="width: 100%; height: 120px; border-radius: var(--radius-lg);"></div></div>
+                            <div class="col-md-4"><div class="skeleton-placeholder" style="width: 100%; height: 120px; border-radius: var(--radius-lg);"></div></div>
+                            <div class="col-md-4"><div class="skeleton-placeholder" style="width: 100%; height: 120px; border-radius: var(--radius-lg);"></div></div>
+                        </div>
+                        <div class="skeleton-placeholder" style="width: 100%; height: 250px; border-radius: var(--radius-lg);"></div>
+                    </div>
+                `,
+                history: `
+                    <div class="container-fluid py-2 skeleton-screen" style="animation: fadeIn 0.25s ease forwards;">
+                        <div class="skeleton-placeholder mb-4" style="width: 250px; height: 32px; border-radius: 4px;"></div>
+                        <div class="skeleton-placeholder" style="width: 100%; height: 400px; border-radius: var(--radius-lg);"></div>
+                    </div>
+                `,
+                analytics: `
+                    <div class="container-fluid py-2 skeleton-screen" style="animation: fadeIn 0.25s ease forwards;">
+                        <div class="skeleton-placeholder mb-4" style="width: 150px; height: 32px; border-radius: 4px;"></div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4"><div class="skeleton-placeholder" style="width: 100%; height: 150px; border-radius: var(--radius-lg);"></div></div>
+                            <div class="col-md-4"><div class="skeleton-placeholder" style="width: 100%; height: 150px; border-radius: var(--radius-lg);"></div></div>
+                            <div class="col-md-4"><div class="skeleton-placeholder" style="width: 100%; height: 150px; border-radius: var(--radius-lg);"></div></div>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6"><div class="skeleton-placeholder" style="width: 100%; height: 350px; border-radius: var(--radius-lg);"></div></div>
+                            <div class="col-md-6"><div class="skeleton-placeholder" style="width: 100%; height: 350px; border-radius: var(--radius-lg);"></div></div>
+                        </div>
+                    </div>
+                `,
+                result: `
+                    <div class="container-fluid py-2 skeleton-screen" style="max-width: 960px; margin: 0 auto; animation: fadeIn 0.25s ease forwards;">
+                        <div class="mb-3"><div class="skeleton-placeholder" style="width: 120px; height: 20px; border-radius: 4px;"></div></div>
+                        <div class="card p-4 p-md-5" style="background: var(--bg-secondary) !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-md) !important; height: 550px;">
+                            <div class="skeleton-placeholder mb-4" style="width: 180px; height: 28px; border-radius: 4px;"></div>
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6"><div class="skeleton-placeholder" style="width: 100%; height: 340px; border-radius: var(--radius);"></div></div>
+                                <div class="col-md-6 d-flex flex-column gap-3 justify-content-center">
+                                    <div class="skeleton-placeholder" style="width: 100%; height: 90px; border-radius: var(--radius);"></div>
+                                    <div class="skeleton-placeholder" style="width: 100%; height: 122px; border-radius: var(--radius);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            };
+
+            function getSkeletonForPath(path) {
+                if (path === '/') return skeletons.predict;
+                if (path === '/dashboard/') return skeletons.dashboard;
+                if (path === '/history/') return skeletons.history;
+                if (path.includes('/analysis/')) return skeletons.analytics;
+                if (path.includes('/result/')) return skeletons.result;
+                return skeletons.history;
+            }
+
+            let activeAbortController = null;
+
+            async function navigateTo(url) {
+                if (activeAbortController) {
+                    activeAbortController.abort();
+                }
+                activeAbortController = new AbortController();
+                const signal = activeAbortController.signal;
+
+                const path = new URL(url, window.location.origin).pathname;
+                
+                // Close mobile hamburger menu
+                if (navToggle && navCollapse) {
+                    navToggle.classList.remove('open');
+                    navCollapse.classList.remove('show');
+                }
+
+                // Add loading class to lock interface
+                document.body.classList.add('page-loading');
+
+                // Show top progress bar immediately
+                if (topBar) {
+                    topBar.style.opacity = '1';
+                    topBar.style.width = '70%';
+                }
+                
+                // Show skeletal placeholder layout immediately
+                const skeletonHTML = getSkeletonForPath(path);
+                if (mainContent && skeletonHTML) {
+                    mainContent.innerHTML = skeletonHTML;
+                }
+                
+                try {
+                    const response = await authenticatedFetch(url, { signal });
+                    if (response.ok) {
+                        const html = await response.text();
+                        
+                        // Parse fetched DOM
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        // Update document title
+                        document.title = doc.title;
+                        
+                        // Swap main content
+                        const newContent = doc.querySelector('.main-content');
+                        if (newContent && mainContent) {
+                            mainContent.innerHTML = newContent.innerHTML;
+                        }
+                        
+                        // Update window history URL
+                        history.pushState(null, '', url);
+                        
+                        // Highlight active menu tab
+                        highlightActiveTab(path);
+                        
+                        // Remove previous dynamic styles to prevent style leaks/conflicts
+                        document.querySelectorAll('.dynamic-style').forEach(el => el.remove());
+                        
+                        // Inject new page-specific styles from the fetched document head
+                        const newStyles = doc.querySelectorAll('head style, head link[rel="stylesheet"]');
+                        newStyles.forEach(style => {
+                            const href = style.getAttribute('href');
+                            if (href && (href.includes('bootstrap') || href.includes('style.css'))) {
+                                return; // Skip global templates
+                            }
+                            const clonedStyle = style.cloneNode(true);
+                            clonedStyle.classList.add('dynamic-style');
+                            document.head.appendChild(clonedStyle);
+                        });
+                        
+                        // Remove previous dynamic scripts to prevent duplication
+                        document.querySelectorAll('.dynamic-script').forEach(el => el.remove());
+                        
+                        // Re-execute scripts sequentially to respect loading order dependencies
+                        const bodyScripts = Array.from(doc.querySelectorAll('body script'));
+                        
+                        const loadScript = (index) => {
+                            if (index >= bodyScripts.length) {
+                                // Clean up loading state
+                                document.body.classList.remove('page-loading');
+
+                                // Manually dispatch DOMContentLoaded to let dynamically loaded script event listeners initialize
+                                window.dispatchEvent(new Event('DOMContentLoaded'));
+                                document.dispatchEvent(new Event('DOMContentLoaded'));
+
+                                // Complete top loader bar
+                                if (topBar) {
+                                    topBar.style.width = '100%';
+                                    setTimeout(() => {
+                                        topBar.style.opacity = '0';
+                                        setTimeout(() => {
+                                            topBar.style.width = '0%';
+                                        }, 300);
+                                    }, 200);
+                                }
+                                return;
+                            }
+                            
+                            const oldScript = bodyScripts[index];
+                            
+                            // Skip duplicate base script or bootstrap bundle
+                            if (oldScript.src.includes('bootstrap.bundle.min.js') || 
+                                oldScript.id === 'base-scripts' || 
+                                oldScript.getAttribute('data-base') === 'true') {
+                                loadScript(index + 1);
+                                return;
+                            }
+                            
+                            const newScript = document.createElement('script');
+                            newScript.classList.add('dynamic-script');
+                            Array.from(oldScript.attributes).forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            
+                            if (oldScript.src) {
+                                newScript.onload = () => loadScript(index + 1);
+                                newScript.onerror = () => loadScript(index + 1);
+                                document.body.appendChild(newScript);
+                            } else {
+                                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                                document.body.appendChild(newScript);
+                                loadScript(index + 1);
+                            }
+                        };
+                        
+                        // Start loading scripts sequentially
+                        loadScript(0);
+                    } else {
+                        document.body.classList.remove('page-loading');
+                        window.location.href = url;
+                    }
+                } catch (err) {
+                    if (err.name === 'AbortError') {
+                        return; // Aborted by subsequent navigation
+                    }
+                    console.error('Fetch transition error:', err);
+                    document.body.classList.remove('page-loading');
+                    window.location.href = url;
+                }
+            }
+
+            // Intercept local anchors to perform SPA transition loading
+            document.body.addEventListener('click', (e) => {
+                const link = e.target.closest('a');
+                if (!link) return;
+                
+                const href = link.getAttribute('href');
+                if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !link.target && link.hostname === window.location.hostname && !link.classList.contains('logout-btn') && !href.includes('/logout/')) {
+                    e.preventDefault();
+                    navigateTo(href);
+                }
+            });
+
+            // Handle browser forward/back buttons
+            window.addEventListener('popstate', () => {
+                navigateTo(window.location.pathname);
+            });
+
+            // Complete top progress bar on window initial load
+            window.addEventListener('load', () => {
+                if (topBar) {
+                    topBar.style.width = '100%';
+                    setTimeout(() => {
+                        topBar.style.opacity = '0';
+                        setTimeout(() => {
+                            topBar.style.width = '0%';
+                        }, 300);
+                    }, 200);
+                }
+            });
+
+            // Expose navigateTo globally so dynamic child pages can use it
+            window.navigateTo = navigateTo;
         });
     </script>
     {% block extra_js %}{% endblock %}
