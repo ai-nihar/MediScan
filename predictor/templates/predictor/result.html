@@ -36,9 +36,12 @@
                 <div class="mb-2">
                     <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Submitted Image</span>
                 </div>
-                <div class="scan-frame" style="background: var(--bg-muted); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.5rem; display: flex; align-items: center; justify-content: center; height: 340px; overflow: hidden;">
+                <div class="scan-frame" style="position: relative; background: var(--bg-muted); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.5rem; display: flex; align-items: center; justify-content: center; height: 340px; overflow: hidden;">
                     {% if prediction.image %}
-                    <img src="{{ prediction.image.url }}" alt="Analyzed Scan" class="scan-image-display" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); object-fit: contain;">
+                    <img src="{{ prediction.image.url }}" alt="Analyzed Scan" class="scan-image-display" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); object-fit: contain; {% if prediction.result == 'Processing' %}opacity: 0.6;{% endif %}">
+                    {% if prediction.result == 'Processing' %}
+                    <div class="skeleton-scan-radar"></div>
+                    {% endif %}
                     {% else %}
                     <div class="no-scan-placeholder text-secondary">No Scan Image Available</div>
                     {% endif %}
@@ -49,7 +52,18 @@
             <div class="col-md-6 d-flex flex-column gap-3 text-start justify-content-center">
                 
                 <!-- Status Banner Redesign -->
-                {% if prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign" %}
+                {% if prediction.result == "Processing" %}
+                <!-- PROCESSING STATE -->
+                <div class="p-3 d-flex align-items-start gap-3" style="background: var(--bg-muted); border: 1px solid var(--border-color); border-radius: var(--radius); color: var(--text-secondary);">
+                    <div class="spinner-border text-primary" role="status" style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; border-width: 2.5px;"></div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary);">Analyzing Scan...</div>
+                        <div style="font-weight: 400; font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">
+                            Running MobileNetV2 classification and generating clinical report. Please wait.
+                        </div>
+                    </div>
+                </div>
+                {% elif prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign" %}
                 <!-- NEGATIVE (Success) -->
                 <div class="p-3 d-flex align-items-start gap-3" style="background: var(--success-light); border: 1px solid var(--success-border); border-radius: var(--radius); color: var(--success);">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
@@ -100,7 +114,7 @@
                 <div class="p-3 d-flex align-items-center gap-4" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius);
                      {% if prediction.result == 'Normal' or prediction.result == 'No Diabetic Retinopathy' or prediction.result == 'Benign' %}
                      --confidence-color: var(--success);
-                     {% elif prediction.result == 'Error' %}
+                     {% elif prediction.result == 'Error' or prediction.result == 'Processing' %}
                      --confidence-color: var(--text-muted);
                      {% else %}
                      --confidence-color: var(--danger);
@@ -112,15 +126,17 @@
                             <!-- Background ring -->
                             <circle cx="50" cy="50" r="42" fill="transparent" stroke="var(--bg-muted)" stroke-width="6" />
                             <!-- Progress ring -->
-                            <circle class="progress-ring-circle" cx="50" cy="50" r="42" fill="transparent" 
+                            <circle class="progress-ring-circle {% if prediction.result == 'Processing' %}pulse-animation{% endif %}" cx="50" cy="50" r="42" fill="transparent" 
                                     stroke="var(--confidence-color)" stroke-width="6" 
                                     stroke-dasharray="263.89" stroke-dashoffset="263.89" 
                                     stroke-linecap="round" transform="rotate(-90 50 50)" 
-                                    style="--target-offset: calc(263.89 - (263.89 * {{ prediction.confidence }}) / 100);" />
+                                    style="--target-offset: calc(263.89 - (263.89 * {% if prediction.result == 'Processing' %}50{% else %}{{ prediction.confidence }}{% endif %}) / 100);" />
                         </svg>
                         <!-- Center text -->
                         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                            <span style="color: var(--confidence-color); font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; line-height: 1;">{{ prediction.confidence }}%</span>
+                            <span style="color: var(--confidence-color); font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; line-height: 1;">
+                                {% if prediction.result == 'Processing' %}...{% else %}{{ prediction.confidence }}%{% endif %}
+                            </span>
                             <span style="color: var(--text-muted); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; margin-top: 2px;">conf</span>
                         </div>
                     </div>
@@ -128,10 +144,12 @@
                     <!-- Explanation details -->
                     <div class="text-start">
                         <div style="font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
-                            Classifier Certainty
+                            {% if prediction.result == 'Processing' %}Computing Certainty...{% else %}Classifier Certainty{% endif %}
                         </div>
                         <p style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4; margin: 0;">
-                            {% if prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign" %}
+                            {% if prediction.result == 'Processing' %}
+                            The convolutional neural network is processing the diagnostic scan and calculating classification weights.
+                            {% elif prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign" %}
                             High probability of a healthy scan. Classification indicates absence of diagnostic indicators.
                             {% else %}
                             Activation layers detect significant pattern correlation corresponding to pathognomonic features.
@@ -155,7 +173,7 @@
         <div class="d-flex gap-3 justify-content-start align-items-center mt-2 pt-4" style="border-top: 1px solid var(--border-color);">
             <a href="/" class="btn" style="background-color: var(--accent) !important; color: var(--bg-secondary) !important; border: none !important; font-family: var(--font-heading); font-weight: 600; border-radius: var(--radius); padding: 0.65rem 1.75rem; transition: var(--transition);">Analyse Another Scan</a>
             <a href="/history/" class="btn btn-outline-secondary">View Diagnostic History</a>
-            <button onclick="window.print()" class="btn btn-outline-info d-flex align-items-center gap-2" style="font-family: var(--font-heading); font-weight: 600; border-radius: var(--radius); padding: 0.65rem 1.5rem;">
+            <button onclick="window.print()" {% if prediction.result == 'Processing' %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %} class="btn btn-outline-info d-flex align-items-center gap-2" style="font-family: var(--font-heading); font-weight: 600; border-radius: var(--radius); padding: 0.65rem 1.5rem;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                     <rect x="6" y="14" width="12" height="8"></rect>
@@ -293,6 +311,16 @@
 
     .progress-ring-circle {
         animation: progressCircle 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+    }
+
+    @keyframes pulseOpacity {
+        0% { opacity: 0.4; }
+        50% { opacity: 1; }
+        100% { opacity: 0.4; }
+    }
+    
+    .pulse-animation {
+        animation: pulseOpacity 1.5s infinite ease-in-out;
     }
 
     .recommendation-list-item {
@@ -610,10 +638,64 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Retrieve and parse formatting tips dynamically
-        const tipsText = `{{ prediction.prevention_tips|escapejs }}`;
+(function() {
+    const init = () => {
         const clinicalTipsRow = document.getElementById('clinical-tips-row');
+        if (!clinicalTipsRow) return;
+
+        const tipsText = `{{ prediction.prevention_tips|escapejs }}`;
+        const predictionResult = `{{ prediction.result }}`;
+        const predictionId = `{{ prediction.pk }}`;
+
+        if (predictionResult === 'Processing') {
+            // Inject skeleton cards for recommendations
+            clinicalTipsRow.innerHTML = `
+                <div class="col-md-4">
+                    <div class="p-3 h-100" style="background: var(--bg-muted); border: 1px solid var(--border-color); border-radius: var(--radius);">
+                        <div class="skeleton-placeholder mb-2" style="width: 100px; height: 16px; border-radius: 4px;"></div>
+                        <div class="skeleton-placeholder" style="width: 100%; height: 60px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 h-100" style="background: var(--bg-muted); border: 1px solid var(--border-color); border-radius: var(--radius);">
+                        <div class="skeleton-placeholder mb-2" style="width: 80px; height: 16px; border-radius: 4px;"></div>
+                        <div class="skeleton-placeholder" style="width: 100%; height: 60px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 h-100" style="background: var(--bg-muted); border: 1px solid var(--border-color); border-radius: var(--radius);">
+                        <div class="skeleton-placeholder mb-2" style="width: 90px; height: 16px; border-radius: 4px;"></div>
+                        <div class="skeleton-placeholder" style="width: 100%; height: 60px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+            `;
+
+            // Start polling status
+            const checkStatus = async () => {
+                if (!window.location.pathname.includes(`/result/${predictionId}/`)) {
+                    return;
+                }
+                try {
+                    const response = await authenticatedFetch(`/api/predictions/${predictionId}/`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.result !== 'Processing') {
+                            if (window.navigateTo) {
+                                window.navigateTo(window.location.href);
+                            } else {
+                                window.location.reload();
+                            }
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error polling status:', err);
+                }
+                setTimeout(checkStatus, 1500);
+            };
+            setTimeout(checkStatus, 1500);
+            return;
+        }
 
         function parseTips(text) {
             const sections = {
@@ -760,6 +842,13 @@
                 </div>
             `;
         }
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>
 {% endblock %}

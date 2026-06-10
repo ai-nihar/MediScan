@@ -387,7 +387,11 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+(function() {
+    const init = () => {
+        const form = document.getElementById('diagnostic-upload-form');
+        if (!form) return;
+
         // Align sticky sidebar to prevent initial jump when scroll starts
         const sidebar = document.querySelector('.sticky-sidebar-content');
         if (sidebar && window.innerWidth >= 992) {
@@ -407,7 +411,6 @@
         const previewImg = document.getElementById('upload-preview');
         const uploadText = document.getElementById('upload-text');
         const uploadIcon = dropzone.querySelector('.upload-icon');
-        const form = document.getElementById('diagnostic-upload-form');
         const submitBtn = document.getElementById('btn-submit-scan');
         const btnText = document.getElementById('btn-text');
         const spinner = document.getElementById('btn-spinner');
@@ -571,7 +574,13 @@
                 stepText.textContent = steps[currentStepIndex];
             }, 1600);
         });
+    };
 
-    });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>
 {% endblock %}

@@ -64,6 +64,59 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
+import threading
+
+def run_prediction_bg(prediction_id, image_path, disease_type):
+    try:
+        # Get detailed prediction dictionary from PyTorch ModelPredictor
+        res = predictor.predict(image_path, disease_type)
+        result = res['result']
+        confidence = res['confidence']
+        is_positive = res['is_positive']
+
+        # Retrieve prevention tips dictionary based on positive/negative status
+        tips_dict = get_prevention_tips(disease_type, is_positive)
+
+        # Format the dictionary into a clean, structured bullet-point layout
+        formatted_tips = f"Severity Level: {tips_dict['severity']}\n\nImmediate Steps:\n"
+        for step in tips_dict['immediate_steps']:
+            formatted_tips += f"- {step}\n"
+        formatted_tips += "\nLifestyle Recommendations:\n"
+        for item in tips_dict['lifestyle']:
+            formatted_tips += f"- {item}\n"
+        formatted_tips += f"\nMedications:\n- {tips_dict['medications']}\n"
+        formatted_tips += f"\nFollow-up:\n- {tips_dict['follow_up']}\n"
+        formatted_tips += f"\nDisclaimer: {tips_dict['disclaimer']}"
+
+        # Update prediction record
+        pred = Prediction.objects.get(pk=prediction_id)
+        pred.result = result
+        pred.confidence = confidence
+        pred.prevention_tips = formatted_tips
+        pred.save()
+    except FileNotFoundError as e:
+        try:
+            pred = Prediction.objects.get(pk=prediction_id)
+            pred.result = 'Error'
+            pred.prevention_tips = 'Model file not found. Please ensure the trained model is present in ml_models/. Contact the administrator.'
+            pred.processing_error = str(e)
+            pred.save()
+        except Exception:
+            pass
+    except Exception as e:
+        try:
+            pred = Prediction.objects.get(pk=prediction_id)
+            pred.result = 'Error'
+            pred.prevention_tips = 'An unexpected error occurred during analysis. Please try again.'
+            pred.processing_error = str(e)
+            pred.save()
+        except Exception:
+            pass
+    finally:
+        from django.db import connection
+        connection.close()
+
+
 class UploadView(LoginRequiredMixin, View):
     """
     Handles rendering the upload diagnostic scan form (GET) 
@@ -94,42 +147,13 @@ class UploadView(LoginRequiredMixin, View):
         )
         prediction.save()
 
-        try:
-            # Get detailed prediction dictionary from PyTorch ModelPredictor
-            res = predictor.predict(prediction.image.path, disease_type)
-            result = res['result']
-            confidence = res['confidence']
-            is_positive = res['is_positive']
-
-            # Retrieve prevention tips dictionary based on positive/negative status
-            tips_dict = get_prevention_tips(disease_type, is_positive)
-
-            # Format the dictionary into a clean, structured bullet-point layout
-            formatted_tips = f"Severity Level: {tips_dict['severity']}\n\nImmediate Steps:\n"
-            for step in tips_dict['immediate_steps']:
-                formatted_tips += f"- {step}\n"
-            formatted_tips += "\nLifestyle Recommendations:\n"
-            for item in tips_dict['lifestyle']:
-                formatted_tips += f"- {item}\n"
-            formatted_tips += f"\nMedications:\n- {tips_dict['medications']}\n"
-            formatted_tips += f"\nFollow-up:\n- {tips_dict['follow_up']}\n"
-            formatted_tips += f"\nDisclaimer: {tips_dict['disclaimer']}"
-
-            # Update prediction record
-            prediction.result = result
-            prediction.confidence = confidence
-            prediction.prevention_tips = formatted_tips
-            prediction.save()
-        except FileNotFoundError as e:
-            prediction.result = 'Error'
-            prediction.prevention_tips = 'Model file not found. Please ensure the trained model is present in ml_models/. Contact the administrator.'
-            prediction.processing_error = str(e)
-            prediction.save()
-        except Exception as e:
-            prediction.result = 'Error'
-            prediction.prevention_tips = 'An unexpected error occurred during analysis. Please try again.'
-            prediction.processing_error = str(e)
-            prediction.save()
+        # Start model inference in a background thread to prevent block
+        thread = threading.Thread(
+            target=run_prediction_bg,
+            args=(prediction.pk, prediction.image.path, disease_type),
+            daemon=True
+        )
+        thread.start()
 
         return redirect('predictor:result', pk=prediction.pk)
 
