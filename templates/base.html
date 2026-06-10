@@ -132,8 +132,7 @@
             
             if (user && getAccessToken()) {
                 authLinksDiv.innerHTML = `
-                    <span class="welcome-text">Welcome, <strong>${user.username}</strong></span>
-                    <a href="/accounts/profile/" class="nav-link" id="nav-profile">Profile</a>
+                    <a href="/accounts/profile/" class="nav-link" id="nav-profile" style="font-weight: 600; color: var(--text-primary);">${user.username}</a>
                     <a href="#" class="nav-link logout-btn" id="logout-btn">Logout</a>
                 `;
                 
