@@ -39,7 +39,8 @@ class LoginView(APIView):
                     'id': user.id,
                     'username': user.username,
                     'email': user.email,
-                    'bio': user.bio
+                    'bio': user.bio,
+                    'profile_picture': user.profile_picture.url if user.profile_picture else None
                 }
             }, status=status.HTTP_200_OK)
         else:
@@ -81,6 +82,38 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         """Return the authenticated user's profile."""
         return self.request.user
 
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if not old_password or not new_password or not confirm_password:
+            return Response({'error': 'All password fields are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user.check_password(old_password):
+            return Response({'error': 'Incorrect current password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new_password != confirm_password:
+            return Response({'error': 'New passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from django.contrib.auth.password_validation import validate_password
+        from django.core.exceptions import ValidationError
+        try:
+            validate_password(new_password, user)
+        except ValidationError as e:
+            return Response({'error': e.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, user)
+
+        return Response({'message': 'Password updated successfully.'}, status=status.HTTP_200_OK)
 
 @login_required(login_url='/accounts/login/')
 def profile_view(request):
@@ -88,4 +121,5 @@ def profile_view(request):
     Renders the clinician's profile page.
     """
     return render(request, 'accounts/profile.html')
+
 

@@ -46,13 +46,12 @@ predictions/
 datasets/
 
 # Large Model weight checkpoints (recommended to keep out of Git)
-*.pth
 *.h5
-ml_models/**/*.pth
 ml_models/**/*.h5
 ml_models/**/confusion_matrix.png
 ml_models/**/training_history.png
 ml_models/**/class_indices.json
+
 
 # Kaggle API credentials or keys
 kaggle.json
@@ -60,3 +59,7 @@ kaggle.json
 credentials.json
 secrets.py
 .env*
+
+# Generated static files for production
+staticfiles/
+

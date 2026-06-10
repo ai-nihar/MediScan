@@ -131,9 +131,20 @@
             const authLinksDiv = document.getElementById('auth-links');
             
             if (user && getAccessToken()) {
+                let avatarHTML = "";
+                if (user.profile_picture) {
+                    avatarHTML = `<img src="${user.profile_picture}" alt="Avatar" class="navbar-avatar">`;
+                } else {
+                    const initial = user.username ? user.username.charAt(0).toUpperCase() : 'U';
+                    avatarHTML = `<div class="navbar-avatar-placeholder">${initial}</div>`;
+                }
+
                 authLinksDiv.innerHTML = `
-                    <a href="/accounts/profile/" class="nav-link" id="nav-profile" style="font-weight: 600; color: var(--text-primary);">${user.username}</a>
-                    <a href="#" class="nav-link logout-btn" id="logout-btn">Logout</a>
+                    <a href="/accounts/profile/" class="navbar-profile-link" id="nav-profile" title="View Profile">
+                        ${avatarHTML}
+                        <span class="navbar-username-label d-none d-sm-inline">${user.username}</span>
+                    </a>
+                    <a href="#" class="nav-link logout-btn" id="logout-btn" style="margin-left: 0.5rem;">Logout</a>
                 `;
                 
                 document.getElementById('logout-btn').addEventListener('click', async (e) => {
@@ -165,10 +176,24 @@
             }
         };
 
+
         document.addEventListener('DOMContentLoaded', () => {
             // Synchronize client-side token state with server-side session state
             const serverIsAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
             
+            {% if request.user.is_authenticated %}
+            const serverUser = {
+                username: "{{ request.user.username|escapejs }}",
+                email: "{{ request.user.email|escapejs }}",
+                bio: "{{ request.user.bio|default_if_none:""|escapejs }}",
+                profile_picture: {% if request.user.profile_picture %}"{{ request.user.profile_picture.url|escapejs }}"{% else %}null{% endif %}
+            };
+            const localUser = getUserData();
+            if (!localUser || localUser.username !== serverUser.username || localUser.profile_picture !== serverUser.profile_picture || localUser.email !== serverUser.email || localUser.bio !== serverUser.bio) {
+                localStorage.setItem('user_data', JSON.stringify(serverUser));
+            }
+            {% endif %}
+
             // Add a silent token refresh attempt. If getAccessToken() exists but the Django session may have expired,
             // we do NOT add aggressive checks. We attempt to silently refresh the token, and only redirect
             // when a protected resource returns a 403 or redirect.
@@ -177,6 +202,7 @@
             }
 
             updateNavbar();
+
             
             // Highlight active navigation items based on current URL path
             const path = window.location.pathname;

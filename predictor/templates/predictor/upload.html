@@ -85,7 +85,7 @@
                     <input type="hidden" name="disease_type" id="disease_type_hidden" value="pneumonia">
 
                     <!-- Disease Selector -->
-                    <div class="mb-4">
+                    <div class="mb-4" id="disease-selector-wrapper">
                         <label class="form-label">Select Disease to Analyze</label>
                         <div class="disease-cards-container d-flex flex-column gap-2">
                             <!-- Card 1: Pneumonia -->
@@ -331,6 +331,52 @@
     }
     .loading-state p { margin-bottom: 0.25rem; }
     .loading-state .loading-sub { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* Laser Scanner Animation Styles */
+    .scan-active {
+        position: relative;
+        overflow: hidden;
+        border-color: var(--accent) !important;
+        background-color: var(--accent-light) !important;
+        cursor: default !important;
+    }
+    
+    .scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(to right, transparent, var(--accent), transparent);
+        box-shadow: 0 0 12px var(--accent), 0 0 4px var(--accent);
+        animation: laserScan 2.5s ease-in-out infinite;
+        z-index: 10;
+        border-radius: var(--radius);
+    }
+    
+    @keyframes laserScan {
+        0% { top: 0%; opacity: 0; }
+        5% { opacity: 1; }
+        95% { opacity: 1; }
+        100% { top: calc(100% - 6px); opacity: 0; }
+    }
+
+    .loading-step-text {
+        font-family: var(--font-heading);
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-top: 1.25rem;
+        margin-bottom: 0.25rem;
+        text-align: center;
+        animation: pulseText 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseText {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+    }
+
 </style>
 {% endblock %}
 
@@ -465,29 +511,47 @@
                 return;
             }
             
-            // Hide the visible child elements of the form to keep inputs in the DOM for submission
-            Array.from(form.children).forEach(child => {
-                if (child.tagName !== 'INPUT') {
-                    child.style.display = 'none';
-                }
-            });
+            // Hide selector, info panel, and submit button
+            document.getElementById('disease-selector-wrapper').style.display = 'none';
+            document.getElementById('disease-info-panel').style.display = 'none';
+            submitBtn.style.display = 'none';
             
-            // Hide the card header "Upload Scan" if present
-            const cardHeader = form.previousElementSibling;
-            if (cardHeader && cardHeader.tagName === 'H2') {
-                cardHeader.style.display = 'none';
-            }
+            // Disable drag/drop and pointer events on the dropzone
+            dropzone.classList.add('scan-active');
+            fileInput.disabled = true;
             
-            // Append the loading state to the form
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading-state';
-            loadingDiv.innerHTML = `
-                <div class="spinner"></div>
-                <p>Running analysis…</p>
-                <p class="loading-sub">This may take a few seconds.</p>
-            `;
-            form.appendChild(loadingDiv);
+            // Add laser scanning line to dropzone
+            const scanLine = document.createElement('div');
+            scanLine.className = 'scan-line';
+            dropzone.appendChild(scanLine);
+            
+            // Append loading step text
+            const stepText = document.createElement('div');
+            stepText.className = 'loading-step-text';
+            stepText.textContent = 'Uploading scan image...';
+            form.appendChild(stepText);
+            
+            const subText = document.createElement('p');
+            subText.className = 'text-center text-secondary small';
+            subText.style.animation = 'pulseText 1.5s infinite ease-in-out';
+            subText.textContent = 'Contacting AI clinical gateway. This may take a few seconds.';
+            form.appendChild(subText);
+            
+            // Cycle through clinical steps during loading
+            const steps = [
+                'Uploading scan to medical gateway...',
+                'Initializing convolutional neural network...',
+                'Extracting image tensor feature maps...',
+                'Evaluating diagnostic probability vectors...',
+                'Formatting clinical recommendation reports...'
+            ];
+            let currentStepIndex = 0;
+            setInterval(() => {
+                currentStepIndex = (currentStepIndex + 1) % steps.length;
+                stepText.textContent = steps[currentStepIndex];
+            }, 1600);
         });
+
     });
 </script>
 {% endblock %}
