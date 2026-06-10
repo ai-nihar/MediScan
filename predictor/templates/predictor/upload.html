@@ -518,7 +518,8 @@
             
             // Disable drag/drop and pointer events on the dropzone
             dropzone.classList.add('scan-active');
-            fileInput.disabled = true;
+            dropzone.style.pointerEvents = 'none';
+
             
             // Add laser scanning line to dropzone
             const scanLine = document.createElement('div');
