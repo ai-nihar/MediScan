@@ -219,7 +219,14 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+(function() {
+    const init = () => {
+        const container = document.getElementById('health-tips-container');
+        const btnPrev = document.getElementById('tip-btn-prev');
+        const btnNext = document.getElementById('tip-btn-next');
+        
+        if (!container || !btnPrev || !btnNext) return;
+
         // Clinical Health Tips list
         const tips = [
             {
@@ -237,36 +244,43 @@
         ];
 
         let currentTipIndex = 0;
-        const container = document.getElementById('health-tips-container');
-        const btnPrev = document.getElementById('tip-btn-prev');
-        const btnNext = document.getElementById('tip-btn-next');
-        let rotationTimer = null;
 
         function displayTip(index) {
             const tip = tips[index];
-            container.innerHTML = `
-                <div class="health-tip-slide active">
-                    <span class="badge bg-info-subtle border border-info-subtle mb-2" style="color: var(--accent);">${tip.category}</span>
-                    <p class="text-secondary small m-0" style="font-style: italic;">"${tip.text}"</p>
-                </div>
-            `;
+            const currentContainer = document.getElementById('health-tips-container');
+            if (currentContainer) {
+                currentContainer.innerHTML = `
+                    <div class="health-tip-slide active">
+                        <span class="badge bg-info-subtle border border-info-subtle mb-2" style="color: var(--accent);">${tip.category}</span>
+                        <p class="text-secondary small m-0" style="font-style: italic;">"${tip.text}"</p>
+                    </div>
+                `;
+            }
         }
 
         function showNextTip() {
+            if (!document.getElementById('health-tips-container')) {
+                if (window.healthTipTimer) clearInterval(window.healthTipTimer);
+                return;
+            }
             currentTipIndex = (currentTipIndex + 1) % tips.length;
             displayTip(currentTipIndex);
             resetTimer();
         }
 
         function showPrevTip() {
+            if (!document.getElementById('health-tips-container')) {
+                if (window.healthTipTimer) clearInterval(window.healthTipTimer);
+                return;
+            }
             currentTipIndex = (currentTipIndex - 1 + tips.length) % tips.length;
             displayTip(currentTipIndex);
             resetTimer();
         }
 
         function resetTimer() {
-            if (rotationTimer) clearInterval(rotationTimer);
-            rotationTimer = setInterval(showNextTip, 5000);
+            if (window.healthTipTimer) clearInterval(window.healthTipTimer);
+            window.healthTipTimer = setInterval(showNextTip, 5000);
         }
 
         // Action button listeners
@@ -275,6 +289,13 @@
 
         // Start initial timer
         resetTimer();
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>
 {% endblock %}

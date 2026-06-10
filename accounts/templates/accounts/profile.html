@@ -246,12 +246,15 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+(function() {
+    const init = () => {
         // Tab routing switcher
         const tabProfileBtn = document.getElementById('tab-profile-btn');
         const tabSecurityBtn = document.getElementById('tab-security-btn');
         const tabProfile = document.getElementById('tab-profile');
         const tabSecurity = document.getElementById('tab-security');
+        
+        if (!tabProfileBtn || !tabSecurityBtn || !tabProfile || !tabSecurity) return;
         
         // Alerts
         const alertDiv = document.getElementById('settings-alert');
@@ -514,6 +517,13 @@
                 passwordBtnSpinner.style.display = 'none';
             }
         });
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>
 {% endblock %}

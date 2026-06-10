@@ -170,178 +170,188 @@
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
 <script>
-    // Safe parse JSON data from Django context
-    const classDistData = {{ class_distribution_json|safe }};
-    const historyData = {{ history_data_json|safe }};
-    const modelMetrics = {{ model_metrics_json|safe }};
-    const predictionStats = {{ prediction_stats_json|safe }};
+(function() {
+    const init = () => {
+        const select = document.getElementById('disease-history-select');
+        if (!select) return;
 
-    // Dark Plotly theme styling
-    const plotlyLayoutDefaults = {
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        font: {
-            family: 'DM Sans, sans-serif',
-            color: '#6b7280'
-        },
-        margin: { l: 40, r: 40, t: 40, b: 40 },
-        legend: {
-            font: { color: '#111827' }
-        }
-    };
+        // Safe parse JSON data from Django context
+        const classDistData = {{ class_distribution_json|safe }};
+        const historyData = {{ history_data_json|safe }};
+        const modelMetrics = {{ model_metrics_json|safe }};
+        const predictionStats = {{ prediction_stats_json|safe }};
 
-    // 1. Grouped Bar Chart: Class Distribution
-    function renderClassDistChart() {
-        const positiveTrace = {
-            x: classDistData.diseases.map(d => d.replace('_', ' ').toUpperCase()),
-            y: classDistData.positive,
-            name: 'Positive Cases',
-            type: 'bar',
-            marker: { color: '#ff4d6d' }
-        };
-
-        const negativeTrace = {
-            x: classDistData.diseases.map(d => d.replace('_', ' ').toUpperCase()),
-            y: classDistData.negative,
-            name: 'Negative Cases',
-            type: 'bar',
-            marker: { color: '#00ff88' }
-        };
-
-        const layout = {
-            ...plotlyLayoutDefaults,
-            barmode: 'group',
-            xaxis: { gridcolor: '#e2e5ea', color: '#111827' },
-            yaxis: { gridcolor: '#e2e5ea', color: '#111827' }
-        };
-
-        Plotly.newPlot('chart-class-dist', [negativeTrace, positiveTrace], layout, {responsive: true});
-    }
-
-    // 2. Line Chart: Training History
-    function renderTrainingHistoryChart(disease) {
-        const hist = historyData[disease];
-        
-        const trainAccTrace = {
-            x: hist.epochs,
-            y: hist.train_acc.map(a => a * 100),
-            name: 'Train Accuracy',
-            type: 'scatter',
-            mode: 'lines+markers',
-            line: { color: '#0d9488', width: 3 },
-            marker: { size: 6 }
-        };
-
-        const valAccTrace = {
-            x: hist.epochs,
-            y: hist.val_acc.map(a => a * 100),
-            name: 'Validation Accuracy',
-            type: 'scatter',
-            mode: 'lines+markers',
-            line: { color: '#16a34a', width: 3 },
-            marker: { size: 6 }
-        };
-
-        const layout = {
-            ...plotlyLayoutDefaults,
-            xaxis: { title: 'Epochs', gridcolor: '#e2e5ea', color: '#111827' },
-            yaxis: { title: 'Accuracy (%)', gridcolor: '#e2e5ea', color: '#111827', range: [0, 105] }
-        };
-
-        Plotly.newPlot('chart-training-history', [trainAccTrace, valAccTrace], layout, {responsive: true});
-    }
-
-    // 3. Radar Chart: Model Metrics Comparison
-    function renderRadarChart() {
-        const theta = ['Accuracy', 'Precision', 'Recall', 'F1 Score'];
-        
-        const data = Object.keys(modelMetrics).map(disease => {
-            const metrics = modelMetrics[disease];
-            let color = '#0d9488';
-            if (disease === 'retinopathy') color = '#16a34a';
-            if (disease === 'skin_cancer') color = '#dc2626';
-            
-            return {
-                type: 'scatterpolar',
-                r: [
-                    metrics.accuracy * 100,
-                    metrics.precision * 100,
-                    metrics.recall * 100,
-                    metrics.f1 * 100
-                ],
-                theta: theta,
-                fill: 'toself',
-                name: disease.replace('_', ' ').toUpperCase(),
-                line: { color: color }
-            };
-        });
-
-        const layout = {
-            ...plotlyLayoutDefaults,
-            polar: {
-                radialaxis: {
-                    visible: true,
-                    range: [0, 100],
-                    color: '#6b7280',
-                    gridcolor: '#e2e5ea'
-                },
-                angularaxis: {
-                    color: '#111827',
-                    gridcolor: '#e2e5ea'
-                },
-                bgcolor: 'rgba(240, 242, 245, 0.4)'
+        // Dark Plotly theme styling
+        const plotlyLayoutDefaults = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: {
+                family: 'DM Sans, sans-serif',
+                color: '#6b7280'
+            },
+            margin: { l: 40, r: 40, t: 40, b: 40 },
+            legend: {
+                font: { color: '#111827' }
             }
         };
 
-        Plotly.newPlot('chart-model-metrics', data, layout, {responsive: true});
-    }
+        // 1. Grouped Bar Chart: Class Distribution
+        function renderClassDistChart() {
+            const positiveTrace = {
+                x: classDistData.diseases.map(d => d.replace('_', ' ').toUpperCase()),
+                y: classDistData.positive,
+                name: 'Positive Cases',
+                type: 'bar',
+                marker: { color: '#ff4d6d' }
+            };
 
-    // 4. Pie Chart: Personal Diagnostics Breakdown
-    function renderPersonalStatsChart() {
-        const labels = Object.keys(predictionStats.by_disease).map(d => d.replace('_', ' ').toUpperCase());
-        const values = Object.values(predictionStats.by_disease);
-        
-        if (predictionStats.total_predictions === 0) {
-            document.getElementById('chart-personal-stats').innerHTML = `
-                <div class="d-flex h-100 justify-content-center align-items-center flex-column text-center text-secondary">
-                    <span style="font-size: 2.5rem;">📊</span>
-                    <p class="mt-2 mb-0" style="color: var(--text-secondary);">No scans run yet by your account.</p>
-                </div>
-            `;
-            return;
+            const negativeTrace = {
+                x: classDistData.diseases.map(d => d.replace('_', ' ').toUpperCase()),
+                y: classDistData.negative,
+                name: 'Negative Cases',
+                type: 'bar',
+                marker: { color: '#00ff88' }
+            };
+
+            const layout = {
+                ...plotlyLayoutDefaults,
+                barmode: 'group',
+                xaxis: { gridcolor: '#e2e5ea', color: '#111827' },
+                yaxis: { gridcolor: '#e2e5ea', color: '#111827' }
+            };
+
+            Plotly.newPlot('chart-class-dist', [negativeTrace, positiveTrace], layout, {responsive: true});
         }
 
-        const data = [{
-            values: values,
-            labels: labels,
-            type: 'pie',
-            hole: 0.4,
-            marker: {
-                colors: ['#0d9488', '#16a34a', '#dc2626']
-            },
-            textinfo: 'label+percent',
-            textposition: 'inside',
-            insidetextorientation: 'radial'
-        }];
+        // 2. Line Chart: Training History
+        function renderTrainingHistoryChart(disease) {
+            const hist = historyData[disease];
+            
+            const trainAccTrace = {
+                x: hist.epochs,
+                y: hist.train_acc.map(a => a * 100),
+                name: 'Train Accuracy',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: '#0d9488', width: 3 },
+                marker: { size: 6 }
+            };
 
-        const layout = {
-            ...plotlyLayoutDefaults,
-            showlegend: true
-        };
+            const valAccTrace = {
+                x: hist.epochs,
+                y: hist.val_acc.map(a => a * 100),
+                name: 'Validation Accuracy',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: '#16a34a', width: 3 },
+                marker: { size: 6 }
+            };
 
-        Plotly.newPlot('chart-personal-stats', data, layout, {responsive: true});
-    }
+            const layout = {
+                ...plotlyLayoutDefaults,
+                xaxis: { title: 'Epochs', gridcolor: '#e2e5ea', color: '#111827' },
+                yaxis: { title: 'Accuracy (%)', gridcolor: '#e2e5ea', color: '#111827', range: [0, 105] }
+            };
 
-    // Initial render and dropdown event listener
-    document.addEventListener('DOMContentLoaded', () => {
+            Plotly.newPlot('chart-training-history', [trainAccTrace, valAccTrace], layout, {responsive: true});
+        }
+
+        // 3. Radar Chart: Model Metrics Comparison
+        function renderRadarChart() {
+            const theta = ['Accuracy', 'Precision', 'Recall', 'F1 Score'];
+            
+            const data = Object.keys(modelMetrics).map(disease => {
+                const metrics = modelMetrics[disease];
+                let color = '#0d9488';
+                if (disease === 'retinopathy') color = '#16a34a';
+                if (disease === 'skin_cancer') color = '#dc2626';
+                
+                return {
+                    type: 'scatterpolar',
+                    r: [
+                        metrics.accuracy * 100,
+                        metrics.precision * 100,
+                        metrics.recall * 100,
+                        metrics.f1 * 100
+                    ],
+                    theta: theta,
+                    fill: 'toself',
+                    name: disease.replace('_', ' ').toUpperCase(),
+                    line: { color: color }
+                };
+            });
+
+            const layout = {
+                ...plotlyLayoutDefaults,
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 100],
+                        color: '#6b7280',
+                        gridcolor: '#e2e5ea'
+                    },
+                    angularaxis: {
+                        color: '#111827',
+                        gridcolor: '#e2e5ea'
+                    },
+                    bgcolor: 'rgba(240, 242, 245, 0.4)'
+                }
+            };
+
+            Plotly.newPlot('chart-model-metrics', data, layout, {responsive: true});
+        }
+
+        // 4. Pie Chart: Personal Diagnostics Breakdown
+        function renderPersonalStatsChart() {
+            const labels = Object.keys(predictionStats.by_disease).map(d => d.replace('_', ' ').toUpperCase());
+            const values = Object.values(predictionStats.by_disease);
+            
+            if (predictionStats.total_predictions === 0) {
+                document.getElementById('chart-personal-stats').innerHTML = `
+                    <div class="d-flex h-100 justify-content-center align-items-center flex-column text-center text-secondary">
+                        <span style="font-size: 2.5rem;">📊</span>
+                        <p class="mt-2 mb-0" style="color: var(--text-secondary);">No scans run yet by your account.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const data = [{
+                values: values,
+                labels: labels,
+                type: 'pie',
+                hole: 0.4,
+                marker: {
+                    colors: ['#0d9488', '#16a34a', '#dc2626']
+                },
+                textinfo: 'label+percent',
+                textposition: 'inside',
+                insidetextorientation: 'radial'
+            }];
+
+            const layout = {
+                ...plotlyLayoutDefaults,
+                showlegend: true
+            };
+
+            Plotly.newPlot('chart-personal-stats', data, layout, {responsive: true});
+        }
+
         renderClassDistChart();
         renderTrainingHistoryChart('pneumonia');
         renderRadarChart();
         renderPersonalStatsChart();
 
-        document.getElementById('disease-history-select').addEventListener('change', (e) => {
+        select.addEventListener('change', (e) => {
             renderTrainingHistoryChart(e.target.value);
         });
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>
 {% endblock %}

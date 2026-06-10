@@ -51,7 +51,11 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+(function() {
+    const init = () => {
+        const loginForm = document.getElementById('login-form');
+        if (!loginForm) return;
+
         // If already logged in, redirect to home. Only redirect if the server-side session is also authenticated
         // to prevent redirect loops when the session is expired.
         const serverIsAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
@@ -63,7 +67,6 @@
             }
         }
 
-        const loginForm = document.getElementById('login-form');
         const submitBtn = document.getElementById('submit-btn');
         const errorAlert = document.getElementById('error-alert');
         const errorMessage = document.getElementById('error-message');
@@ -111,6 +114,13 @@
                 submitBtn.disabled = false;
             }
         });
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>
 {% endblock %}
