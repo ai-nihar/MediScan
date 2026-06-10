@@ -112,6 +112,8 @@ a {
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    margin-left: 3.5rem;
+    margin-right: auto;
 }
 
 .nav-link {
@@ -536,6 +538,8 @@ a {
         flex-wrap: wrap;
         justify-content: center;
         gap: 0.75rem 1.25rem;
+        margin-left: 0;
+        margin-right: 0;
     }
     .nav-auth {
         border-left: none;
