@@ -7,6 +7,17 @@
 {% block content %}
 <div class="container-fluid py-2" style="max-width: 960px; margin: 0 auto; animation: fadeIn 0.25s ease forwards;">
     
+    <!-- Back Button -->
+    <div class="mb-3 text-start">
+        <a href="/history/" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: var(--transition);" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-secondary)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to History
+        </a>
+    </div>
+
     <!-- Overall card -->
     <div class="card p-4 p-md-5" style="background: var(--bg-secondary) !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-md) !important; position: relative; overflow: hidden; backdrop-filter: none; -webkit-backdrop-filter: none;">
         
@@ -36,7 +47,7 @@
             </div>
 
             <!-- Right Column: Metrics -->
-            <div class="col-md-6 d-flex flex-column gap-3 text-start">
+            <div class="col-md-6 d-flex flex-column gap-3 text-start justify-content-center">
                 
                 <!-- Status Banner Redesign -->
                 {% if prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign" %}
