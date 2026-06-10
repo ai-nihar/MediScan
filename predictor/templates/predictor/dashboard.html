@@ -2,56 +2,54 @@
 
 {% block title %}Dashboard - MediScan AI{% endblock %}
 
-{% block page_title %}Clinician Dashboard{% endblock %}
-
 {% block content %}
 <div class="container-fluid py-2">
     <!-- TOP ROW: 4 Stat Cards -->
     <div class="row g-4 mb-4">
         <!-- Stat 1: Total Scans -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100" style="border-left: 3px solid var(--accent-cyan);">
+            <div class="card h-100" style="border-left: 3px solid var(--accent-cyan);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Total Scans</span>
                     <span style="font-size: 1.25rem;">🔍</span>
                 </div>
-                <div class="h2 mb-1 text-primary font-weight-bold">{{ total_predictions }}</div>
+                <div class="h2 mb-1 text-primary fw-bold">{{ total_predictions }}</div>
                 <div class="small text-secondary">Cumulative Diagnostics</div>
             </div>
         </div>
 
         <!-- Stat 2: Pathology Detected -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100" style="border-left: 3px solid var(--accent-red);">
+            <div class="card h-100" style="border-left: 3px solid var(--accent-red);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Pathology Detected</span>
                     <span style="font-size: 1.25rem;">⚠️</span>
                 </div>
-                <div class="h2 mb-1 text-danger font-weight-bold">{{ diseases_detected }}</div>
+                <div class="h2 mb-1 text-danger fw-bold">{{ diseases_detected }}</div>
                 <div class="small text-secondary">Positive Screenings</div>
             </div>
         </div>
 
         <!-- Stat 3: Scans This Week -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100" style="border-left: 3px solid var(--accent-green);">
+            <div class="card h-100" style="border-left: 3px solid var(--accent-green);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Scans This Week</span>
                     <span style="font-size: 1.25rem;">📈</span>
                 </div>
-                <div class="h2 mb-1 text-green font-weight-bold">{{ scans_this_week }}</div>
+                <div class="h2 mb-1 text-green fw-bold">{{ scans_this_week }}</div>
                 <div class="small text-secondary">Active In Last 7 Days</div>
             </div>
         </div>
 
         <!-- Stat 4: Account Creation -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100" style="border-left: 3px solid var(--border);">
+            <div class="card h-100" style="border-left: 3px solid var(--border-color);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Clinician Joined</span>
                     <span style="font-size: 1.25rem;">🩺</span>
                 </div>
-                <div class="h6 mb-1 text-primary font-weight-bold" style="padding-top: 6px; padding-bottom: 6px;">{{ account_created|date:"Y-m-d" }}</div>
+                <div class="h6 mb-1 text-primary fw-bold" style="padding-top: 6px; padding-bottom: 6px;">{{ account_created|date:"Y-m-d" }}</div>
                 <div class="small text-secondary">Portal Activation Date</div>
             </div>
         </div>
@@ -60,29 +58,29 @@
     <!-- MIDDLE SECTION: Recent Activity Table -->
     <div class="row mb-4">
         <div class="col">
-            <div class="glass-card">
+            <div class="card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="h5 text-primary m-0" style="font-family: 'Space Grotesk', sans-serif;">Recent Diagnostic Activities</h3>
-                    <a href="/history/" class="text-info text-decoration-none small font-weight-bold">View Full History &rarr;</a>
+                    <h3 class="h5 text-primary m-0" style="font-family: var(--font-heading);">Recent Diagnostic Activities</h3>
+                    <a href="/history/" style="color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 600;">View Full History &rarr;</a>
                 </div>
                 
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle m-0" style="background: transparent;">
+                    <table class="table table-hover align-middle m-0">
                         <thead>
-                            <tr class="text-secondary" style="border-bottom: 2px solid var(--border);">
-                                <th style="background: transparent;">Date & Time</th>
-                                <th style="background: transparent;">Diagnostic Model</th>
-                                <th style="background: transparent;">Classification Outcome</th>
-                                <th style="background: transparent;">Confidence Level</th>
-                                <th class="text-end" style="background: transparent;">Actions</th>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Diagnostic Model</th>
+                                <th>Classification Outcome</th>
+                                <th>Confidence Level</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for item in recent_predictions %}
                             <tr style="border-bottom: 1px solid rgba(30, 58, 95, 0.25);">
-                                <td class="text-secondary small" style="background: transparent;">{{ item.created_at|date:"Y-m-d H:i" }}</td>
-                                <td class="text-primary font-weight-bold" style="background: transparent;">{{ item.get_disease_type_display }}</td>
-                                <td style="background: transparent;">
+                                <td class="text-secondary small">{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                                <td class="text-primary fw-bold">{{ item.get_disease_type_display }}</td>
+                                <td>
                                     {% if item.result == "Normal" or item.result == "No Diabetic Retinopathy" or item.result == "Benign" %}
                                     <span class="badge px-3 py-2 bg-success-subtle text-success border border-success-subtle">{{ item.result }}</span>
                                     {% elif item.result == "Error" %}
@@ -91,15 +89,15 @@
                                     <span class="badge px-3 py-2 bg-danger-subtle text-danger border border-danger-subtle">{{ item.result }}</span>
                                     {% endif %}
                                 </td>
-                                <td class="text-info font-weight-bold mono-text" style="background: transparent;">{{ item.confidence }}%</td>
-                                <td class="text-end" style="background: transparent;">
+                                <td class="fw-bold" style="color: var(--accent);">{{ item.confidence }}%</td>
+                                <td class="text-end">
                                     <a href="/result/{{ item.pk }}/" class="btn btn-sm btn-outline-info">Report</a>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center text-secondary py-5" style="background: transparent;">
-                                    No scan analyses run yet. Use the <a href="/" class="text-info text-decoration-none">Analyze Scan</a> portal to run your first report.
+                                <td colspan="5" class="text-center text-secondary py-5">
+                                    No scan analyses run yet. Use the <a href="/" style="color: var(--accent); text-decoration: none;">Analyze Scan</a> portal to run your first report.
                                 </td>
                             </tr>
                             {% endfor %}
@@ -114,27 +112,27 @@
     <div class="row g-4">
         <!-- Left: Quick Analyze -->
         <div class="col-lg-6">
-            <div class="glass-card h-100">
-                <h3 class="h5 text-primary mb-3" style="font-family: 'Space Grotesk', sans-serif;">Quick Diagnostic Launch</h3>
+            <div class="card h-100">
+                <h3 class="h5 text-primary mb-3" style="font-family: var(--font-heading);">Quick Diagnostic Launch</h3>
                 <p class="text-secondary small mb-4">Instantly redirect to the neural screening upload consoles with preselected target configurations.</p>
                 
                 <div class="row g-3">
                     <div class="col-sm-4">
                         <a href="/?type=pneumonia" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
                             <span style="font-size: 1.5rem;">🫁</span>
-                            <span class="small font-weight-bold">Pneumonia</span>
+                            <span class="small fw-bold">Pneumonia</span>
                         </a>
                     </div>
                     <div class="col-sm-4">
                         <a href="/?type=retinopathy" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
                             <span style="font-size: 1.5rem;">👁️</span>
-                            <span class="small font-weight-bold">Retinopathy</span>
+                            <span class="small fw-bold">Retinopathy</span>
                         </a>
                     </div>
                     <div class="col-sm-4">
                         <a href="/?type=skin_cancer" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
                             <span style="font-size: 1.5rem;">🔬</span>
-                            <span class="small font-weight-bold">Skin Lesion</span>
+                            <span class="small fw-bold">Skin Lesion</span>
                         </a>
                     </div>
                 </div>
@@ -143,14 +141,14 @@
 
         <!-- Right: Health Tips Carousel -->
         <div class="col-lg-6">
-            <div class="glass-card h-100 d-flex flex-column justify-content-between">
+            <div class="card h-100 d-flex flex-column justify-content-between">
                 <div>
-                    <h3 class="h5 text-primary mb-3" style="font-family: 'Space Grotesk', sans-serif;">Clinical Health Advisory</h3>
+                    <h3 class="h5 text-primary mb-3" style="font-family: var(--font-heading);">Clinical Health Advisory</h3>
                     
                     <div id="health-tips-container" class="position-relative py-2" style="min-height: 100px;">
                         <!-- Tips will rotate here via JS -->
                         <div class="health-tip-slide active">
-                            <span class="badge bg-info-subtle text-info border border-info-subtle mb-2">Respiratory Wellness</span>
+                            <span class="badge bg-info-subtle border border-info-subtle mb-2" style="color: var(--accent);">Respiratory Wellness</span>
                             <p class="text-secondary small m-0 font-italic" id="tip-text">Optimize lung health by staying active, drinking sufficient fluids to thin respiratory secretions, and obtaining seasonal immunizations.</p>
                         </div>
                     </div>
@@ -221,7 +219,7 @@
             const tip = tips[index];
             container.innerHTML = `
                 <div class="health-tip-slide active">
-                    <span class="badge bg-info-subtle text-info border border-info-subtle mb-2">${tip.category}</span>
+                    <span class="badge bg-info-subtle border border-info-subtle mb-2" style="color: var(--accent);">${tip.category}</span>
                     <p class="text-secondary small m-0" style="font-style: italic;">"${tip.text}"</p>
                 </div>
             `;

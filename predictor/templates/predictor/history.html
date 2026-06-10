@@ -10,7 +10,7 @@
             <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Review all past patient scans and diagnostic results for your account.</p>
         </div>
         <div>
-            <a href="/" class="submit-btn" style="text-decoration: none; text-align: center; display: inline-block; padding: 0.6rem 1.5rem; margin: 0; font-size: 0.95rem; width: auto;">New Scan Analysis</a>
+            <a href="/" class="submit-btn" style="text-decoration: none; text-align: center; display: inline-block; padding: 0.6rem 1.5rem; margin: 0; font-size: 0.95rem; width: auto;">New Scan</a>
         </div>
     </div>
 
@@ -19,7 +19,7 @@
         <div class="table-wrapper" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); overflow-x: auto;">
             <table class="history-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); background-color: rgba(10, 15, 30, 0.6);">
+                    <tr style="border-bottom: 1px solid var(--border-color); background-color: var(--bg-muted);">
                         <th style="color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; font-weight: 600; padding: 1rem 1.5rem; letter-spacing: 0.5px;">Date & Time</th>
                         <th style="color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; font-weight: 600; padding: 1rem 1.5rem; letter-spacing: 0.5px;">Scan</th>
                         <th style="color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; font-weight: 600; padding: 1rem 1.5rem; letter-spacing: 0.5px;">Analysis Category</th>
@@ -42,11 +42,11 @@
                         <td style="padding: 1rem 1.5rem; font-size: 0.9rem;">{{ item.get_disease_type_display }}</td>
                         <td style="padding: 1rem 1.5rem; font-size: 0.9rem;">
                             {% if item.result == "Normal" or item.result == "No Diabetic Retinopathy" or item.result == "Benign" %}
-                            <span style="font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; display: inline-block; background-color: rgba(6, 214, 160, 0.1); border: 1px solid rgba(6, 214, 160, 0.25); color: var(--success);">{{ item.result }}</span>
+                            <span style="font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; display: inline-block; background-color: var(--success-light); border: 1px solid var(--success-border); color: var(--success);">{{ item.result }}</span>
                             {% elif item.result == "Error" %}
-                            <span style="font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; display: inline-block; background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-secondary);">Failed</span>
+                            <span style="font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; display: inline-block; background-color: var(--bg-muted); border: 1px solid var(--border-color); color: var(--text-secondary);">Failed</span>
                             {% else %}
-                            <span style="font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; display: inline-block; background-color: rgba(255, 77, 109, 0.1); border: 1px solid rgba(255, 77, 109, 0.25); color: var(--danger);">{{ item.result }}</span>
+                            <span style="font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; display: inline-block; background-color: var(--danger-light); border: 1px solid var(--danger-border); color: var(--danger);">{{ item.result }}</span>
                             {% endif %}
                         </td>
                         <td style="padding: 1rem 1.5rem; font-size: 0.9rem; color: var(--accent); font-weight: 600;">{{ item.confidence }}%</td>
@@ -76,7 +76,7 @@
             <a href="?page={{ page_obj.previous_page_number }}" class="pag-btn" style="color: var(--text-secondary); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; padding: 0.5rem 0.85rem; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;">Previous</a>
         {% endif %}
 
-        <span style="color: var(--text-primary); background: var(--accent-glow); border: 1px solid var(--accent); border-radius: 4px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600;">
+        <span style="color: var(--text-primary); background: var(--accent-light); border: 1px solid var(--accent); border-radius: 4px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600;">
             Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
 
@@ -92,7 +92,7 @@
     .pag-btn:hover {
         border-color: var(--accent) !important;
         color: var(--accent) !important;
-        background-color: var(--accent-glow) !important;
+        background-color: var(--accent-light) !important;
     }
 </style>
 {% endblock %}
