@@ -151,14 +151,16 @@
         border-radius: var(--radius);
         text-align: left;
         cursor: pointer;
-        transition: var(--transition);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         width: 100%;
     }
     
     .tab-btn:hover {
         background-color: var(--bg-muted);
         color: var(--text-primary);
+        padding-left: 1.25rem;
     }
+
     
     .tab-btn.active {
         background-color: var(--accent-light);

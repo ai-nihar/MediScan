@@ -80,6 +80,7 @@ a {
 }
 
 .nav-container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem 1.5rem;
@@ -108,12 +109,39 @@ a {
     color: var(--accent);
 }
 
+.nav-collapse {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+    gap: 1.5rem;
+}
+
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 101;
+}
+
+.nav-toggle .bar {
+    width: 100%;
+    height: 2px;
+    background-color: var(--text-primary);
+    border-radius: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    margin-left: 5.5rem;
-    margin-right: auto;
+    gap: 2rem;
 }
 
 .nav-link {
@@ -194,11 +222,13 @@ a {
     border-radius: var(--radius);
     color: var(--text-secondary);
     font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .login-btn:hover {
     color: var(--text-primary);
     border-color: var(--text-secondary);
+    background-color: var(--bg-muted);
 }
 
 .register-btn {
@@ -207,20 +237,26 @@ a {
     padding: 0.4rem 1.2rem;
     border-radius: var(--radius);
     font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .register-btn:hover {
     background-color: var(--accent-hover);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+    transform: translateY(-1px);
 }
 
 .logout-btn {
     color: var(--danger) !important;
     font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logout-btn:hover {
     color: #b91c1c !important;
+    opacity: 0.85;
 }
+
 
 /* Main Content Wrapper */
 .main-content {
@@ -563,27 +599,87 @@ a {
 
 /* --- Responsive Audit Styles --- */
 
-/* 1. Navbar on mobile (< 640px) */
-@media (max-width: 639.98px) {
+/* 1. Navbar on mobile (< 992px) */
+@media (max-width: 991.98px) {
     .nav-container {
+        padding: 0.75rem 1.5rem;
+        position: relative;
+    }
+    
+    .nav-toggle {
+        display: flex;
+    }
+    
+    /* Collapsible Menu */
+    .nav-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: var(--shadow-md);
         flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 0;
+        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        display: flex;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s ease;
+        z-index: 99;
     }
+    
+    .nav-collapse.show {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
     .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.75rem 1.25rem;
-        margin-left: 0;
-        margin-right: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        margin: 0 0 1.25rem 0;
+        width: 100%;
     }
+    
+    .nav-link {
+        width: 100%;
+        padding: 0.5rem 0;
+        font-size: 1.05rem;
+    }
+    
+    .nav-link.active {
+        border-bottom: none;
+        border-left: 3px solid var(--accent);
+        padding-left: 0.75rem;
+    }
+    
     .nav-auth {
         border-left: none;
+        border-top: 1px solid var(--border-color);
         padding-left: 0;
+        padding-top: 1.25rem;
+        flex-direction: column;
+        align-items: stretch;
         gap: 0.75rem;
         width: 100%;
-        justify-content: center;
+    }
+    
+    /* Hamburger morph to X */
+    .nav-toggle.open .bar:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+    
+    .nav-toggle.open .bar:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .nav-toggle.open .bar:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
     }
 }
 

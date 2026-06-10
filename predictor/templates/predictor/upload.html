@@ -15,8 +15,9 @@
 
     <div class="row g-5 align-items-stretch">
         <!-- Left Column: Informational Sidebar (40%) -->
-        <div class="col-lg-5 d-flex flex-column justify-content-between sidebar-info">
-            <div>
+        <div class="col-lg-5 sidebar-info">
+            <div class="sticky-sidebar-content">
+                <div>
                 <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">AI Diagnostic Screening</h2>
                 <p style="color: var(--text-secondary); font-size: 1rem; line-height: 1.5; margin-bottom: 2rem;">
                     Upload a medical scan to receive an instant AI-assisted classification. For educational and research use only.
@@ -70,6 +71,7 @@
             
             <div class="disclaimer d-none d-md-block" style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 2rem;">
                 <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">This tool does not replace clinical diagnosis.</p>
+            </div>
             </div>
         </div>
 
@@ -183,12 +185,12 @@
         background: var(--bg-muted);
         border: 1px solid var(--border-color);
         border-radius: var(--radius);
-        transition: var(--transition);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .disease-select-card .card-icon {
         font-size: 1.75rem;
-        transition: transform 0.2s ease;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .disease-select-card .card-details {
@@ -210,19 +212,22 @@
 
     /* Hover and Selected effects */
     .disease-select-card:hover .card-content {
-        border-color: var(--text-muted);
-        background: var(--bg-muted);
+        border-color: rgba(13, 148, 136, 0.45) !important;
+        background: var(--bg-secondary) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.08);
     }
 
     .disease-select-card:hover .card-icon {
-        transform: scale(1.05);
+        transform: scale(1.1);
     }
 
     .disease-select-card input[type="radio"]:checked + .card-content {
-        border-color: var(--accent);
-        background: var(--accent-light);
-        box-shadow: var(--shadow-sm);
+        border-color: var(--accent) !important;
+        background: var(--accent-light) !important;
+        box-shadow: var(--shadow-sm), 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
     }
+
 
     /* Dropzone */
     .upload-dropzone {
@@ -291,10 +296,10 @@
     @media (min-width: 992px) {
         .sidebar-info {
             padding-right: 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
+        }
+        .sticky-sidebar-content {
+            position: sticky;
+            top: 110px; /* Natural starting viewport offset */
         }
     }
     
@@ -383,6 +388,20 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Align sticky sidebar to prevent initial jump when scroll starts
+        const sidebar = document.querySelector('.sticky-sidebar-content');
+        if (sidebar && window.innerWidth >= 992) {
+            const navbar = document.querySelector('.navbar');
+            const navbarHeight = navbar ? navbar.offsetHeight : 62;
+            const mainContent = document.querySelector('.main-content');
+            const mainPadding = mainContent ? parseFloat(window.getComputedStyle(mainContent).paddingTop) : 40;
+            const container = document.querySelector('.container-fluid');
+            const containerPadding = container ? parseFloat(window.getComputedStyle(container).paddingTop) : 8;
+            
+            // Set the sticky top offset exactly equal to its natural starting viewport top
+            sidebar.style.top = `${navbarHeight + mainPadding + containerPadding}px`;
+        }
+
         const dropzone = document.getElementById('upload-dropzone');
         const fileInput = document.getElementById('image-file-input');
         const previewImg = document.getElementById('upload-preview');

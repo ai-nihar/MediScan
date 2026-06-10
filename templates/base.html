@@ -34,15 +34,25 @@
                 Medi<span class="logo-highlight">Scan</span>
             </a>
             
-            <nav class="nav-links">
-                <a href="/dashboard/" class="nav-link" id="nav-dashboard">Dashboard</a>
-                <a href="/" class="nav-link" id="nav-predict">Analyze Scan</a>
-                <a href="/history/" class="nav-link" id="nav-history">Scan History</a>
-                <a href="/analysis/dashboard/" class="nav-link" id="nav-analytics">EDA Analytics</a>
-            </nav>
+            <!-- Hamburger menu button -->
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
             
-            <div id="auth-links" class="nav-auth">
-                <!-- Dynamic auth links injected via JavaScript -->
+            <!-- Collapsible links and controls -->
+            <div class="nav-collapse" id="nav-collapse">
+                <nav class="nav-links">
+                    <a href="/dashboard/" class="nav-link" id="nav-dashboard">Dashboard</a>
+                    <a href="/" class="nav-link" id="nav-predict">Analyze Scan</a>
+                    <a href="/history/" class="nav-link" id="nav-history">Scan History</a>
+                    <a href="/analysis/dashboard/" class="nav-link" id="nav-analytics">EDA Analytics</a>
+                </nav>
+                
+                <div id="auth-links" class="nav-auth">
+                    <!-- Dynamic auth links injected via JavaScript -->
+                </div>
             </div>
         </div>
     </header>
@@ -203,6 +213,25 @@
 
             updateNavbar();
 
+            // Hamburger toggle logic
+            const navToggle = document.getElementById('nav-toggle');
+            const navCollapse = document.getElementById('nav-collapse');
+            
+            if (navToggle && navCollapse) {
+                navToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    navToggle.classList.toggle('open');
+                    navCollapse.classList.toggle('show');
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!navToggle.contains(e.target) && !navCollapse.contains(e.target)) {
+                        navToggle.classList.remove('open');
+                        navCollapse.classList.remove('show');
+                    }
+                });
+            }
             
             // Highlight active navigation items based on current URL path
             const path = window.location.pathname;

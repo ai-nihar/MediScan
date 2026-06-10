@@ -97,13 +97,46 @@
                 {% endif %}
 
                 <!-- Confidence Metric Card -->
-                <div class="p-3" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius);">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Model Confidence</span>
-                        <span style="color: var(--accent); font-size: 1.5rem; font-weight: 700;">{{ prediction.confidence }}%</span>
+                <div class="p-3 d-flex align-items-center gap-4" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius);
+                     {% if prediction.result == 'Normal' or prediction.result == 'No Diabetic Retinopathy' or prediction.result == 'Benign' %}
+                     --confidence-color: var(--success);
+                     {% elif prediction.result == 'Error' %}
+                     --confidence-color: var(--text-muted);
+                     {% else %}
+                     --confidence-color: var(--danger);
+                     {% endif %}
+                ">
+                    <!-- SVG Circular Gauge -->
+                    <div style="position: relative; width: 100px; height: 100px; flex-shrink: 0;">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <!-- Background ring -->
+                            <circle cx="50" cy="50" r="42" fill="transparent" stroke="var(--bg-muted)" stroke-width="6" />
+                            <!-- Progress ring -->
+                            <circle class="progress-ring-circle" cx="50" cy="50" r="42" fill="transparent" 
+                                    stroke="var(--confidence-color)" stroke-width="6" 
+                                    stroke-dasharray="263.89" stroke-dashoffset="263.89" 
+                                    stroke-linecap="round" transform="rotate(-90 50 50)" 
+                                    style="--target-offset: calc(263.89 - (263.89 * {{ prediction.confidence }}) / 100);" />
+                        </svg>
+                        <!-- Center text -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <span style="color: var(--confidence-color); font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; line-height: 1;">{{ prediction.confidence }}%</span>
+                            <span style="color: var(--text-muted); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; margin-top: 2px;">conf</span>
+                        </div>
                     </div>
-                    <div class="progress-bar-container" style="width: 100%; height: 4px; background: var(--bg-muted); border-radius: 2px; overflow: hidden; border: none;">
-                        <div class="progress-bar bg-accent animate-progress-bar" style="height: 100%; width: {{ prediction.confidence }}%; background-color: var(--accent) !important; border: none;"></div>
+                    
+                    <!-- Explanation details -->
+                    <div class="text-start">
+                        <div style="font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+                            Classifier Certainty
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4; margin: 0;">
+                            {% if prediction.result == "Normal" or prediction.result == "No Diabetic Retinopathy" or prediction.result == "Benign" %}
+                            High probability of a healthy scan. Classification indicates absence of diagnostic indicators.
+                            {% else %}
+                            Activation layers detect significant pattern correlation corresponding to pathognomonic features.
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
 
@@ -251,6 +284,15 @@
 
     .animate-progress-bar {
         animation: fillProgress 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+    }
+
+    @keyframes progressCircle {
+        from { stroke-dashoffset: 263.89; }
+        to { stroke-dashoffset: var(--target-offset); }
+    }
+
+    .progress-ring-circle {
+        animation: progressCircle 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
     }
 
     .recommendation-list-item {

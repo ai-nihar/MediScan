@@ -8,7 +8,7 @@
     <div class="row g-4 mb-4">
         <!-- Stat 1: Total Scans -->
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100" style="border-left: 3px solid var(--accent-cyan);">
+            <div class="card h-100 dashboard-stat-card" style="border-left: 3px solid var(--accent-cyan);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Total Scans</span>
                     <span style="font-size: 1.25rem;">🔍</span>
@@ -20,7 +20,7 @@
 
         <!-- Stat 2: Pathology Detected -->
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100" style="border-left: 3px solid var(--accent-red);">
+            <div class="card h-100 dashboard-stat-card" style="border-left: 3px solid var(--accent-red);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Pathology Detected</span>
                     <span style="font-size: 1.25rem;">⚠️</span>
@@ -32,7 +32,7 @@
 
         <!-- Stat 3: Scans This Week -->
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100" style="border-left: 3px solid var(--accent-green);">
+            <div class="card h-100 dashboard-stat-card" style="border-left: 3px solid var(--accent-green);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Scans This Week</span>
                     <span style="font-size: 1.25rem;">📈</span>
@@ -44,7 +44,7 @@
 
         <!-- Stat 4: Account Creation -->
         <div class="col-md-6 col-lg-3">
-            <div class="card h-100" style="border-left: 3px solid var(--border-color);">
+            <div class="card h-100 dashboard-stat-card" style="border-left: 3px solid var(--border-color);">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-secondary small text-uppercase" style="letter-spacing: 0.5px;">Clinician Joined</span>
                     <span style="font-size: 1.25rem;">🩺</span>
@@ -118,19 +118,19 @@
                 
                 <div class="row g-3">
                     <div class="col-sm-4">
-                        <a href="/?type=pneumonia" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
+                        <a href="/?type=pneumonia" class="btn btn-outline-info quick-launch-btn w-100 py-3 d-flex flex-column align-items-center gap-2">
                             <span style="font-size: 1.5rem;">🫁</span>
                             <span class="small fw-bold">Pneumonia</span>
                         </a>
                     </div>
                     <div class="col-sm-4">
-                        <a href="/?type=retinopathy" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
+                        <a href="/?type=retinopathy" class="btn btn-outline-info quick-launch-btn w-100 py-3 d-flex flex-column align-items-center gap-2">
                             <span style="font-size: 1.5rem;">👁️</span>
                             <span class="small fw-bold">Retinopathy</span>
                         </a>
                     </div>
                     <div class="col-sm-4">
-                        <a href="/?type=skin_cancer" class="btn btn-outline-info w-100 py-3 d-flex flex-column align-items-center gap-2">
+                        <a href="/?type=skin_cancer" class="btn btn-outline-info quick-launch-btn w-100 py-3 d-flex flex-column align-items-center gap-2">
                             <span style="font-size: 1.5rem;">🔬</span>
                             <span class="small fw-bold">Skin Lesion</span>
                         </a>
@@ -186,6 +186,33 @@
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(5px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .dashboard-stat-card {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer;
+    }
+    
+    .dashboard-stat-card:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+    
+    .quick-launch-btn {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .quick-launch-btn:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15) !important;
+        background-color: var(--accent) !important;
+        color: var(--bg-secondary) !important;
+        border-color: var(--accent) !important;
+    }
+    
+    .quick-launch-btn:hover span {
+        transform: scale(1.15);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 </style>
 {% endblock %}
