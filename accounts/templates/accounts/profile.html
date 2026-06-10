@@ -45,6 +45,7 @@
                     <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2rem;">Edit Profile</h3>
                     
                     <form id="profile-edit-form" enctype="multipart/form-data">
+                        {% csrf_token %}
                         <!-- Profile Photo Section -->
                         <div class="d-flex align-items-center gap-4 mb-4 pb-3" style="border-bottom: 1px solid var(--border-subtle);">
                             <div class="position-relative avatar-container">
@@ -97,6 +98,7 @@
                     <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2rem;">Change Password</h3>
                     
                     <form id="password-change-form">
+                        {% csrf_token %}
                         <!-- Current Password -->
                         <div class="form-group mb-3">
                             <label for="old-password" class="form-label">Current Password</label>
@@ -404,7 +406,7 @@
                     method: 'PATCH',
                     headers: {
                         'Authorization': `Bearer ${access}`,
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : ''
                     },
                     body: formData
                 });
@@ -484,7 +486,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${access}`,
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : ''
                     },
                     body: JSON.stringify({
                         old_password: oldPassword,
