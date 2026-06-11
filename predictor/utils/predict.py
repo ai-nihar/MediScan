@@ -1,79 +1,77 @@
 import os
-import torch
-import torch.nn as nn
-from torchvision.models import mobilenet_v2
+import numpy as np
+import onnxruntime as ort
+from PIL import Image
 from django.conf import settings
-from .preprocess import preprocess_image, get_class_label
-
-class DiseaseModel(nn.Module):
-    def __init__(self):
-        super(DiseaseModel, self).__init__()
-        # Initialize backbone structure (no need to download pre-trained weights since we load our state dict)
-        self.base = mobilenet_v2(weights=None)
-        
-        # Modify the classifier head to match our trained PyTorch architecture
-        num_features = self.base.classifier[1].in_features
-        self.base.classifier = nn.Sequential(
-            nn.Linear(num_features, 128),
-            nn.ReLU(),
-            nn.Dropout(p=0.3),
-            nn.Linear(128, 1),
-            nn.Sigmoid()
-        )
-
-    def forward(self, x):
-        return self.base(x)
-
+from .preprocess import get_class_label
 
 class ModelPredictor:
     def __init__(self):
-        # Cache loaded models in a dict
-        self.models = {}
+        # Cache loaded ONNX sessions in a dict
+        self.sessions = {}
         
-        # MODEL_PATHS dict pointing to each .pth file
+        # MODEL_PATHS dict pointing to each .onnx file
         self.MODEL_PATHS = {
-            'pneumonia': os.path.join(settings.BASE_DIR, 'ml_models', 'pneumonia', 'pneumonia_model.pth'),
-            'retinopathy': os.path.join(settings.BASE_DIR, 'ml_models', 'retinopathy', 'retinopathy_model.pth'),
-            'skin_cancer': os.path.join(settings.BASE_DIR, 'ml_models', 'skin_cancer', 'skin_cancer_model.pth'),
+            'pneumonia': os.path.join(settings.BASE_DIR, 'ml_models', 'pneumonia', 'pneumonia_model.onnx'),
+            'retinopathy': os.path.join(settings.BASE_DIR, 'ml_models', 'retinopathy', 'retinopathy_model.onnx'),
+            'skin_cancer': os.path.join(settings.BASE_DIR, 'ml_models', 'skin_cancer', 'skin_cancer_model.onnx'),
         }
 
-    def _get_model(self, disease_type, device):
-        if disease_type not in self.models:
+    def _get_session(self, disease_type):
+        if disease_type not in self.sessions:
             model_path = self.MODEL_PATHS.get(disease_type)
             if not model_path or not os.path.exists(model_path):
                 raise FileNotFoundError(
-                    f"Model file for {disease_type} not found at {model_path}. "
-                    f"Please run the corresponding training script in ml_models/{disease_type}/train.py first."
+                    f"ONNX Model file for {disease_type} not found at {model_path}. "
+                    f"Please run the export script export_to_onnx.py first."
                 )
             
-            # Instantiate and load model
-            model = DiseaseModel()
-            state_dict = torch.load(model_path, map_location=device)
-            model.load_state_dict(state_dict)
-            model.to(device)
-            model.eval()
-            
-            self.models[disease_type] = model
-        return self.models[disease_type]
+            # Load ONNX Inference Session using CPU provider
+            session = ort.InferenceSession(model_path, providers=['CPUExecutionProvider'])
+            self.sessions[disease_type] = session
+        return self.sessions[disease_type]
+
+    def _preprocess(self, image_path, target_size=(224, 224)):
+        # 1. Open image with Pillow and convert to RGB (handles grayscale/RGBA)
+        img = Image.open(image_path).convert('RGB')
+        
+        # 2. Resize to 224x224
+        img = img.resize(target_size)
+        
+        # 3. Convert to float32 numpy array and scale to [0.0, 1.0] (matching ToTensor())
+        img_array = np.array(img).astype(np.float32) / 255.0
+        
+        # 4. Normalize with ImageNet mean and std
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+        std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+        img_array = (img_array - mean) / std
+        
+        # 5. Transpose from (H, W, C) to (C, H, W)
+        img_array = np.transpose(img_array, (2, 0, 1))
+        
+        # 6. Add batch dimension: (1, C, H, W)
+        img_array = np.expand_dims(img_array, axis=0)
+        return img_array
 
     def predict(self, image_path, disease_type):
         """
-        Run model inference, return detailed analysis metadata.
+        Run ONNX model inference, return detailed analysis metadata.
         """
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # Load session (lazy loading from cache)
+        session = self._get_session(disease_type)
         
-        # Load model (lazy loading from cache)
-        model = self._get_model(disease_type, device)
+        # Preprocess the image to a normalized numpy array
+        img_array = self._preprocess(image_path)
         
-        # Call preprocess_image from preprocess.py (returns PyTorch tensor)
-        processed_tensor = preprocess_image(image_path).to(device)
+        # Run inference
+        output = session.run(None, {'input': img_array})[0]
         
-        # Run prediction (inference mode)
-        with torch.no_grad():
-            output = model(processed_tensor)
-            confidence = float(output.item())  # Sigmoid output is shape [1, 1], item() gets the float
+        # Note: The PyTorch MobileNetV2 classifier head we exported already ends with
+        # a Sigmoid activation layer, so the ONNX output[0][0] is already the 
+        # final sigmoid probability in the range [0, 1].
+        confidence = float(output[0][0])
         
-        # Threshold binary prediction
+        # Threshold binary prediction at 0.5
         result_index = 1 if confidence >= 0.5 else 0
         result_label = get_class_label(disease_type, result_index)
         
@@ -87,12 +85,10 @@ class ModelPredictor:
             'raw_score': confidence
         }
 
-# Create a singleton instance
+# Create the singleton instance
 predictor = ModelPredictor()
 
 # Backwards compatibility wrapper for views/APIs
 def predict_disease(disease_type, image_path):
     res = predictor.predict(image_path, disease_type)
     return res['result'], res['confidence']
-
-

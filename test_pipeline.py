@@ -15,8 +15,7 @@ except Exception as e:
     sys.exit(1)
 
 from django.conf import settings
-from predictor.utils.predict import predictor, DiseaseModel
-import torch
+from predictor.utils.predict import predictor
 
 def test_pipeline():
     print("\n--- Pipeline Verification Start ---")
@@ -33,12 +32,10 @@ def test_pipeline():
             all_exist = False
             
     if not all_exist:
-        print("\n[WARN] Some model files are missing. Make sure you train them first or place them in their folders.")
+        print("\n[WARN] Some model files are missing. Make sure they are placed in their folders.")
 
-    # 2 & 3. Load each model and print its structure/summary
-    print("\n2. Loading models and running dummy inference:")
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"  Using inference device: {device}")
+    # 2 & 3. Load each ONNX model session and run dummy inference
+    print("\n2. Loading ONNX models and running dummy inference:")
     
     # Create a dummy 224x224 image file to test prediction preprocessing & pipeline
     dummy_img_path = os.path.join(tempfile.gettempdir(), 'dummy_clinical_scan.png')
@@ -48,12 +45,11 @@ def test_pipeline():
     
     for disease in ['pneumonia', 'retinopathy', 'skin_cancer']:
         try:
-            # Lazy load model (loads from state dict .pth)
-            model = predictor._get_model(disease, device)
-            print(f"\n  [ {disease.capitalize()} Model Loaded ]")
-            print("  Structure:")
-            print(f"    - Backbone: MobileNetV2")
-            print(f"    - Classifier: {model.base.classifier}")
+            # Lazy load session
+            session = predictor._get_session(disease)
+            print(f"\n  [ {disease.capitalize()} ONNX Session Loaded ]")
+            print(f"    - Input: {[i.name for i in session.get_inputs()]}")
+            print(f"    - Output: {[o.name for o in session.get_outputs()]}")
             
             # Run test prediction using predictor pipeline
             res = predictor.predict(dummy_img_path, disease)
@@ -69,3 +65,4 @@ def test_pipeline():
 
 if __name__ == '__main__':
     test_pipeline()
+
