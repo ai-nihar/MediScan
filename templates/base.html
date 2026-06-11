@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MediScan — AI-assisted medical image screening for pneumonia, diabetic retinopathy, and skin cancer. For research and educational use only.">
+    <meta name="description" content="{% block meta_description %}MediScan — AI-assisted medical image screening for pneumonia, diabetic retinopathy, and skin cancer. For research and educational use only.{% endblock %}">
     <meta property="og:title" content="MediScan — AI Diagnostic Screening">
     <meta property="og:description" content="AI-assisted medical image screening tool.">
     <meta property="og:type" content="website">
@@ -373,6 +373,13 @@
                         
                         // Update document title
                         document.title = doc.title;
+                        
+                        // Update meta description for SEO
+                        const newDesc = doc.querySelector('meta[name="description"]');
+                        const currentDesc = document.querySelector('meta[name="description"]');
+                        if (newDesc && currentDesc) {
+                            currentDesc.setAttribute('content', newDesc.getAttribute('content'));
+                        }
                         
                         // Swap main content
                         const newContent = doc.querySelector('.main-content');

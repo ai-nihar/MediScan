@@ -59,7 +59,13 @@ kaggle.json
 credentials.json
 secrets.py
 .env*
+!.env.example
 
 # Generated static files for production
 staticfiles/
+
+# Application log files
+logs/*
+!logs/.gitkeep
+*.log
 

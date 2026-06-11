@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}Profile Settings - MediScan AI{% endblock %}
+{% block meta_description %}Manage your clinician account settings, update your profile picture, bio, change your password, and verify API access tokens.{% endblock %}
 
 {% block content %}
 <div class="container py-4" style="max-width: 800px; animation: fadeIn 0.3s ease-out forwards;">
@@ -248,6 +249,7 @@
 <script>
 (function() {
     const init = () => {
+        document.removeEventListener('DOMContentLoaded', init);
         // Tab routing switcher
         const tabProfileBtn = document.getElementById('tab-profile-btn');
         const tabSecurityBtn = document.getElementById('tab-security-btn');

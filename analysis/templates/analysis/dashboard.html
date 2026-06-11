@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}Analytics — MediScan{% endblock %}
+{% block meta_description %}Interactive exploratory data analysis (EDA) dashboard displaying AI model training metrics, validation losses, and patient diagnosis breakdown charts.{% endblock %}
 
 
 
@@ -172,6 +173,7 @@
 <script>
 (function() {
     const init = () => {
+        document.removeEventListener('DOMContentLoaded', init);
         const select = document.getElementById('disease-history-select');
         if (!select) return;
 

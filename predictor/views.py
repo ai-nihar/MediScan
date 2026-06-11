@@ -65,8 +65,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 
 import threading
+import logging
+
+logger = logging.getLogger('predictor')
 
 def run_prediction_bg(prediction_id, image_path, disease_type):
+    logger.info(f"Background prediction task started for prediction ID: {prediction_id} (disease: {disease_type})")
     try:
         # Get detailed prediction dictionary from PyTorch ModelPredictor
         res = predictor.predict(image_path, disease_type)
@@ -94,7 +98,9 @@ def run_prediction_bg(prediction_id, image_path, disease_type):
         pred.confidence = confidence
         pred.prevention_tips = formatted_tips
         pred.save()
+        logger.info(f"Background prediction task succeeded for prediction ID: {prediction_id}. Result: {result}, Confidence: {confidence}%")
     except FileNotFoundError as e:
+        logger.error(f"Background prediction task failed for prediction ID: {prediction_id}. Model file not found on disk: {e}")
         try:
             pred = Prediction.objects.get(pk=prediction_id)
             pred.result = 'Error'
@@ -104,6 +110,7 @@ def run_prediction_bg(prediction_id, image_path, disease_type):
         except Exception:
             pass
     except Exception as e:
+        logger.exception(f"Background prediction task failed for prediction ID: {prediction_id} due to an unexpected error.")
         try:
             pred = Prediction.objects.get(pk=prediction_id)
             pred.result = 'Error'
@@ -146,6 +153,7 @@ class UploadView(LoginRequiredMixin, View):
             prevention_tips=''
         )
         prediction.save()
+        logger.info(f"User {request.user.username} (ID: {request.user.id}) initiated scan upload for {disease_type}. Saved prediction record ID: {prediction.pk}")
 
         # Start model inference in a background thread to prevent block
         thread = threading.Thread(

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}Upload Scan — MediScan{% endblock %}
+{% block meta_description %}Perform instant, AI-assisted screening of medical scans for chest X-ray consolidations, diabetic retinopathy fundus pictures, and skin lesions.{% endblock %}
 
 {% block page_title %}Upload Diagnostic Scan{% endblock %}
 
@@ -389,6 +390,7 @@
 <script>
 (function() {
     const init = () => {
+        document.removeEventListener('DOMContentLoaded', init);
         const form = document.getElementById('diagnostic-upload-form');
         if (!form) return;
 

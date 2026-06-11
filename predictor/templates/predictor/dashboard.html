@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}Dashboard - MediScan AI{% endblock %}
+{% block meta_description %}Clinician dashboard containing recent prediction history, scan counts, diagnostic outcomes, and quick links to run new screening analyses.{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-2">
@@ -221,6 +222,7 @@
 <script>
 (function() {
     const init = () => {
+        document.removeEventListener('DOMContentLoaded', init);
         const container = document.getElementById('health-tips-container');
         const btnPrev = document.getElementById('tip-btn-prev');
         const btnNext = document.getElementById('tip-btn-next');
